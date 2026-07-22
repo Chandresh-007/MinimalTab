@@ -1,21 +1,11 @@
 import { X } from "lucide-react";
 import { ENGINES } from "@/lib/minimaltab/search";
 
-const THEMES = [
-  { id: "light", name: "Minimal White" },
-  { id: "paper", name: "Paper" },
-  { id: "notion", name: "Notion" },
-  { id: "midnight", name: "Midnight" },
-  { id: "terminal", name: "Terminal" },
-];
-
 export function Settings({
   open,
   onClose,
   name,
   setName,
-  theme,
-  setTheme,
   defaultEngine,
   setDefaultEngine,
 }: {
@@ -23,8 +13,6 @@ export function Settings({
   onClose: () => void;
   name: string;
   setName: (v: string) => void;
-  theme: string;
-  setTheme: (v: string) => void;
   defaultEngine: string;
   setDefaultEngine: (v: string) => void;
 }) {
@@ -55,20 +43,8 @@ export function Settings({
           </section>
 
           <section>
-            <h3 className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Theme</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {THEMES.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setTheme(t.id)}
-                  className={`rounded-lg border px-3 py-2 text-left transition-colors ${
-                    theme === t.id ? "border-foreground/40 bg-muted" : "border-border hover:bg-muted/60"
-                  }`}
-                >
-                  <span className="block text-sm font-medium">{t.name}</span>
-                </button>
-              ))}
-            </div>
+            <h3 className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Appearance</h3>
+            <p className="text-xs text-muted-foreground">Use the sun / moon toggle in the header to switch between light and dark mode.</p>
           </section>
 
           <section>
