@@ -159,11 +159,11 @@ function MinimalTab() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+      <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {/* Two-column on desktop: Hero + Search on the left, Notes on the right.
             Single column on mobile. Focus mode collapses to just Hero + Search. */}
         <div
-          className={`grid grid-cols-1 gap-8 lg:gap-12 ${
+          className={`grid grid-cols-1 gap-6 lg:gap-10 ${
             focusMode ? "" : "lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]"
           }`}
         >
