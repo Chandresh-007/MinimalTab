@@ -72,6 +72,8 @@ function MinimalTab() {
   const [name, setName] = useLocalStorage<string>("mt.name", "");
   const [engine, setEngine] = useLocalStorage<string>("mt.engine", "duckduckgo");
   const [recent, setRecent] = useLocalStorage<string[]>("mt.recent", []);
+  const [wallpaper, setWallpaper] = useLocalStorage<WallpaperId>("mt.wallpaper", "aurora");
+  const [dailyFocus, setDailyFocus] = useLocalStorage<string>("mt.dailyFocus", "");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
@@ -79,8 +81,8 @@ function MinimalTab() {
   useEffect(() => {
     if (typeof document === "undefined") return;
     document.documentElement.classList.toggle("dark", !!dark);
-    document.documentElement.removeAttribute("data-theme");
-  }, [dark]);
+    document.documentElement.setAttribute("data-wallpaper", wallpaper);
+  }, [dark, wallpaper]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
