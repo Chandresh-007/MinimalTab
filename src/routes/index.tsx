@@ -262,7 +262,6 @@ function MinimalTab() {
         dailyFocus={dailyFocus}
         setDailyFocus={setDailyFocus}
       />
-      <BuyMeCoffee />
     </div>
   );
 }
