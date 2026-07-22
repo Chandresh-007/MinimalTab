@@ -78,12 +78,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "MinimalTab — Your Browser's Productivity OS" },
-      { name: "description", content: "A calm, keyboard-first homepage for search, notes, focus, and quick access. Designed for people who ship." },
+      { name: "description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." },
       { name: "author", content: "MinimalTab" },
       { property: "og:title", content: "MinimalTab — Your Browser's Productivity OS" },
-      { property: "og:description", content: "Universal search, command palette, notes, Pomodoro, and quick links — beautifully minimal." },
+      { property: "og:description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "MinimalTab — Your Browser's Productivity OS" },
+      { name: "twitter:description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/71efd60b-ccf6-4e01-8858-1f3ed632d165/id-preview-50340deb--4686e49e-68b6-4bce-9e01-d010d7cf2f2d.lovable.app-1784713547760.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/71efd60b-ccf6-4e01-8858-1f3ed632d165/id-preview-50340deb--4686e49e-68b6-4bce-9e01-d010d7cf2f2d.lovable.app-1784713547760.png" },
     ],
     links: [
       {

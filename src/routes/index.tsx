@@ -22,7 +22,7 @@ export const Route = createFileRoute("/")({
       { title: "MinimalTab — Your Browser's Productivity OS" },
       { name: "description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." },
       { property: "og:title", content: "MinimalTab — Your Browser's Productivity OS" },
-      { property: "og:description", content: "A calm, keyboard-first homepage for people who ship." },
+      { property: "og:description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." },
     ],
   }),
   component: MinimalTab,
