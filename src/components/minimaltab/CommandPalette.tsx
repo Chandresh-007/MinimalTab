@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Command, Search, ArrowRight, Sparkles, StickyNote, Timer, Settings as SettingsIcon, Github, Mail, Youtube } from "lucide-react";
+import { Command, Search, ArrowRight, Sparkles, StickyNote, Settings as SettingsIcon, Github, Mail, Youtube } from "lucide-react";
 import { routeSearch } from "@/lib/minimaltab/search";
 
 type Item = {
@@ -17,7 +17,6 @@ export function CommandPalette({
   onOpenChange,
   onOpenNotes,
   onOpenSettings,
-  onStartTimer,
   onToggleFocus,
   onToggleTheme,
   defaultEngine,
@@ -26,7 +25,6 @@ export function CommandPalette({
   onOpenChange: (v: boolean) => void;
   onOpenNotes: () => void;
   onOpenSettings: () => void;
-  onStartTimer: () => void;
   onToggleFocus: () => void;
   onToggleTheme: () => void;
   defaultEngine: string;
@@ -45,7 +43,6 @@ export function CommandPalette({
 
   const staticItems: Item[] = [
     { id: "notes", label: "Open Notes", icon: StickyNote, group: "Actions", action: onOpenNotes, hint: "N" },
-    { id: "timer", label: "Start Pomodoro (25 min)", icon: Timer, group: "Actions", action: onStartTimer, hint: "T" },
     { id: "focus", label: "Toggle Focus Mode", icon: Sparkles, group: "Actions", action: onToggleFocus, hint: "F" },
     { id: "theme", label: "Toggle Theme", icon: Sparkles, group: "Actions", action: onToggleTheme },
     { id: "settings", label: "Open Settings", icon: SettingsIcon, group: "Actions", action: onOpenSettings, hint: "," },
