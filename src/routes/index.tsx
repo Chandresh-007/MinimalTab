@@ -259,6 +259,10 @@ function MinimalTab() {
         setName={setName}
         defaultEngine={engine}
         setDefaultEngine={setEngine}
+        wallpaper={wallpaper}
+        setWallpaper={setWallpaper}
+        dailyFocus={dailyFocus}
+        setDailyFocus={setDailyFocus}
       />
     </div>
   );
