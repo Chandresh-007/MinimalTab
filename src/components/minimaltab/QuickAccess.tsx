@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { Plus, X, ExternalLink, GripVertical } from "lucide-react";
+import { Plus, X, ExternalLink, GripVertical, Upload, Clock } from "lucide-react";
+import { motion } from "framer-motion";
 import { DEFAULT_LINKS, ICONS, type QuickLink } from "@/lib/minimaltab/links";
 import { useLocalStorage } from "@/lib/minimaltab/storage";
 
+const TOP_SITES_KEY = "mt.topsites";
+
 export function QuickAccess() {
   const [links, setLinks] = useLocalStorage<QuickLink[]>("mt.quicklinks", DEFAULT_LINKS);
+  const [topSites, setTopSites] = useLocalStorage<Record<string, number>>(TOP_SITES_KEY, {});
   const [adding, setAdding] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState("");
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [dragId, setDragId] = useState<string | null>(null);
@@ -77,6 +83,61 @@ export function QuickAccess() {
     }
   };
 
+  const trackClick = (link: QuickLink) => {
+    setTopSites((prev) => ({ ...prev, [link.url]: (prev[link.url] ?? 0) + 1 }));
+  };
+
+  const sortedTopSites = Object.entries(topSites)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([url]) => {
+      const link = links.find((l) => l.url === url);
+      return link ? { name: link.name, url } : { name: new URL(url).hostname.replace(/^www\./, ""), url };
+    });
+
+  const parseImport = (text: string): { name: string; url: string }[] => {
+    const results: { name: string; url: string }[] = [];
+    // Netscape HTML export
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, "text/html");
+    const anchors = doc.querySelectorAll("a[href]");
+    anchors.forEach((a) => {
+      const href = a.getAttribute("href");
+      if (href && /^https?:\/\//i.test(href)) {
+        results.push({ name: a.textContent?.trim() || new URL(href).hostname, url: href });
+      }
+    });
+    // Plain URLs fallback
+    if (results.length === 0) {
+      const urls = text.match(/https?:\/\/[^\s]+/gi) || [];
+      urls.forEach((u) => {
+        try {
+          results.push({ name: new URL(u).hostname.replace(/^www\./, ""), url: u });
+        } catch {
+          /* ignore */
+        }
+      });
+    }
+    return results.slice(0, 20);
+  };
+
+  const runImport = () => {
+    const items = parseImport(importText);
+    if (items.length === 0) return;
+    const next = [
+      ...links,
+      ...items.map((item) => ({
+        id: crypto.randomUUID(),
+        name: item.name,
+        url: item.url,
+        icon: "chat" as const,
+      })),
+    ];
+    setLinks(next);
+    setImportText("");
+    setImportOpen(false);
+  };
+
   // ---------- Pointer-based drag (touch + mouse friendly) ----------
   const stopAutoScroll = () => {
     if (autoScrollRaf.current) {
@@ -123,7 +184,6 @@ export function QuickAccess() {
   };
 
   const startPointerDrag = (e: React.PointerEvent, id: string, label: string) => {
-    // Only left button / touch / pen
     if (e.button !== undefined && e.button !== 0) return;
     e.preventDefault();
     (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
@@ -165,6 +225,12 @@ export function QuickAccess() {
             Drag handle · Alt + ← →
           </span>
           <button
+            onClick={() => setImportOpen((v) => !v)}
+            className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Upload className="h-3 w-3" /> Import
+          </button>
+          <button
             onClick={() => setAdding((v) => !v)}
             className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
@@ -173,19 +239,59 @@ export function QuickAccess() {
         </div>
       </div>
 
+      {sortedTopSites.length > 0 && (
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <Clock className="h-3 w-3" /> Top sites
+          </span>
+          {sortedTopSites.map((site) => (
+            <a
+              key={site.url}
+              href={site.url}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => trackClick({ url: site.url } as QuickLink)}
+              className="rounded-full border border-border bg-background/60 px-2.5 py-0.5 text-xs text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+            >
+              {site.name}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {importOpen && (
+        <div className="mb-3 rounded-xl border border-border bg-card p-3">
+          <p className="mb-2 text-xs text-muted-foreground">Paste a Netscape HTML bookmark export or a list of URLs.</p>
+          <textarea
+            value={importText}
+            onChange={(e) => setImportText(e.target.value)}
+            placeholder={`Paste <A HREF="...">...</A> or https://...`}
+            className="h-24 w-full resize-none rounded-lg border border-border bg-transparent p-2 text-xs outline-none placeholder:text-muted-foreground"
+          />
+          <div className="mt-2 flex justify-end gap-2">
+            <button onClick={() => setImportOpen(false)} className="rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">
+              Cancel
+            </button>
+            <button onClick={runImport} className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted">
+              Import
+            </button>
+          </div>
+        </div>
+      )}
+
       {adding && (
         <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Name"
-            className="flex-1 min-w-[8rem] bg-transparent px-2 py-1 text-sm outline-none placeholder:text-muted-foreground"
+            className="min-w-[8rem] flex-1 bg-transparent px-2 py-1 text-sm outline-none placeholder:text-muted-foreground"
           />
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://…"
-            className="flex-[2] min-w-[10rem] bg-transparent px-2 py-1 text-sm outline-none placeholder:text-muted-foreground"
+            className="min-w-[10rem] flex-[2] bg-transparent px-2 py-1 text-sm outline-none placeholder:text-muted-foreground"
           />
           <button
             onClick={add}
@@ -202,17 +308,18 @@ export function QuickAccess() {
         aria-label="Quick access links — drag the handle to reorder, or Alt with arrow keys"
         className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5"
       >
-        {links.map((l) => {
+        {links.map((l, i) => {
           const Icon = ICONS[l.icon] ?? ExternalLink;
           const isDragging = dragId === l.id;
           const isOver = overId === l.id && dragId !== l.id;
           return (
-            <li
+            <motion.li
               key={l.id}
               data-id={l.id}
-              className={`group relative transition-transform ${isDragging ? "opacity-40" : ""} ${
-                isOver ? "translate-y-[-2px]" : ""
-              }`}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: isDragging ? 0.4 : 1, y: isOver ? -2 : 0 }}
+              transition={{ duration: 0.2, delay: i * 0.02 }}
+              className="group relative"
             >
               <a
                 ref={(el) => {
@@ -224,6 +331,7 @@ export function QuickAccess() {
                 onKeyDown={(e) => onKey(e, l.id)}
                 onClick={(e) => {
                   if (dragId) e.preventDefault();
+                  else trackClick(l);
                 }}
                 className={`flex items-center gap-2 rounded-2xl border border-border bg-card px-2.5 py-3 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_-12px_rgba(0,0,0,0.12)] ${
                   isOver ? "border-foreground/40 ring-2 ring-foreground/10" : ""
@@ -261,7 +369,7 @@ export function QuickAccess() {
               >
                 <X className="h-3 w-3" />
               </button>
-            </li>
+            </motion.li>
           );
         })}
       </ul>

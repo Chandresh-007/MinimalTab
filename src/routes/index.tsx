@@ -9,9 +9,10 @@ import { Hero } from "@/components/minimaltab/Hero";
 import { QuickAccess } from "@/components/minimaltab/QuickAccess";
 import { Notes } from "@/components/minimaltab/Notes";
 import { CommandPalette } from "@/components/minimaltab/CommandPalette";
-import { Settings } from "@/components/minimaltab/Settings";
+import { Settings, type WallpaperId } from "@/components/minimaltab/Settings";
 import { WaveBackground } from "@/components/minimaltab/WaveBackground";
 import { ThemeToggle } from "@/components/minimaltab/ThemeToggle";
+import { WeatherWidget } from "@/components/minimaltab/WeatherWidget";
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
 
 export const Route = createFileRoute("/")({
@@ -71,6 +72,8 @@ function MinimalTab() {
   const [name, setName] = useLocalStorage<string>("mt.name", "");
   const [engine, setEngine] = useLocalStorage<string>("mt.engine", "duckduckgo");
   const [recent, setRecent] = useLocalStorage<string[]>("mt.recent", []);
+  const [wallpaper, setWallpaper] = useLocalStorage<WallpaperId>("mt.wallpaper", "aurora");
+  const [dailyFocus, setDailyFocus] = useLocalStorage<string>("mt.dailyFocus", "");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
@@ -78,8 +81,8 @@ function MinimalTab() {
   useEffect(() => {
     if (typeof document === "undefined") return;
     document.documentElement.classList.toggle("dark", !!dark);
-    document.documentElement.removeAttribute("data-theme");
-  }, [dark]);
+    document.documentElement.setAttribute("data-wallpaper", wallpaper);
+  }, [dark, wallpaper]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -134,6 +137,7 @@ function MinimalTab() {
             <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[10px] sm:inline">⌘K</kbd>
           </button>
           <div className="flex items-center gap-1">
+            {hydrated && <WeatherWidget />}
             <ThemeToggle dark={!!dark} onToggle={(ev) => toggleMode(ev)} />
             <button
               onClick={() => setFocusMode((v) => !v)}
@@ -155,11 +159,11 @@ function MinimalTab() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+      <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {/* Two-column on desktop: Hero + Search on the left, Notes on the right.
             Single column on mobile. Focus mode collapses to just Hero + Search. */}
         <div
-          className={`grid grid-cols-1 gap-8 lg:gap-12 ${
+          className={`grid grid-cols-1 gap-6 lg:gap-10 ${
             focusMode ? "" : "lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]"
           }`}
         >
@@ -243,7 +247,6 @@ function MinimalTab() {
           document.querySelector("#notes-heading")?.scrollIntoView({ behavior: "smooth" });
         }}
         onOpenSettings={() => setSettingsOpen(true)}
-        onStartTimer={() => {}}
         onToggleFocus={() => setFocusMode((v) => !v)}
         onToggleTheme={() => toggleMode()}
         defaultEngine={engine}
@@ -255,6 +258,10 @@ function MinimalTab() {
         setName={setName}
         defaultEngine={engine}
         setDefaultEngine={setEngine}
+        wallpaper={wallpaper}
+        setWallpaper={setWallpaper}
+        dailyFocus={dailyFocus}
+        setDailyFocus={setDailyFocus}
       />
     </div>
   );
