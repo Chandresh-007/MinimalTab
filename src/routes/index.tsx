@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { flushSync } from "react-dom";
+import { motion } from "framer-motion";
 import { Settings as SettingsIcon, Search, Sparkles } from "lucide-react";
 
 import { UniversalSearch } from "@/components/minimaltab/UniversalSearch";
@@ -25,6 +26,45 @@ export const Route = createFileRoute("/")({
   component: MinimalTab,
 });
 
+// Reveal the new theme with a circular clip-path expanding from the click point.
+// Uses the View Transitions API where available so the real (already-repainted)
+// theme is unveiled — no full-screen white/black flash.
+function runThemeTransition(x: number, y: number, apply: () => void) {
+  const doc = document as Document & {
+    startViewTransition?: (cb: () => void) => { ready: Promise<void> };
+  };
+  if (!doc.startViewTransition) {
+    apply();
+    return;
+  }
+  const endRadius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y),
+  );
+  const transition = doc.startViewTransition(() => {
+    flushSync(apply);
+  });
+  transition.ready
+    .then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0 at ${x}px ${y}px)`,
+            `circle(${endRadius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 520,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    })
+    .catch(() => {
+      /* ignore — fallback is instant swap */
+    });
+}
+
 function MinimalTab() {
   const hydrated = useHydrated();
   const [dark, setDark] = useLocalStorage<boolean>("mt.dark", false);
@@ -34,7 +74,6 @@ function MinimalTab() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
-  const [ripple, setRipple] = useState<{ x: number; y: number; to: "dark" | "light" } | null>(null);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -46,7 +85,8 @@ function MinimalTab() {
     const onKey = (e: KeyboardEvent) => {
       const meta = e.metaKey || e.ctrlKey;
       const target = e.target as HTMLElement | null;
-      const typing = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+      const typing =
+        target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
       if (meta && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setPaletteOpen((v) => !v);
@@ -55,6 +95,9 @@ function MinimalTab() {
         setFocusMode((v) => !v);
       } else if (!typing && e.key === "/") {
         e.preventDefault();
+        (document.querySelector('input[aria-label="Universal search"]') as HTMLInputElement | null)?.focus();
+      } else if (e.key === "Escape" && !typing) {
+        // Bring focus back to the search input as a safe default.
         (document.querySelector('input[aria-label="Universal search"]') as HTMLInputElement | null)?.focus();
       }
     };
@@ -65,34 +108,16 @@ function MinimalTab() {
   const toggleMode = (e?: React.MouseEvent) => {
     const x = e?.clientX ?? window.innerWidth - 40;
     const y = e?.clientY ?? 40;
-    setRipple({ x, y, to: dark ? "light" : "dark" });
-    setDark(!dark);
-    window.setTimeout(() => setRipple(null), 900);
+    runThemeTransition(x, y, () => setDark(!dark));
   };
 
   return (
     <div className="relative min-h-dvh bg-background text-foreground">
       <WaveBackground />
 
-      <AnimatePresence>
-        {ripple && (
-          <motion.div
-            key={`${ripple.x}-${ripple.y}-${ripple.to}`}
-            initial={{ clipPath: `circle(0px at ${ripple.x}px ${ripple.y}px)` }}
-            animate={{
-              clipPath: `circle(${Math.hypot(window.innerWidth, window.innerHeight) * 1.1}px at ${ripple.x}px ${ripple.y}px)`,
-            }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-none fixed inset-0 z-[60]"
-            style={{ background: ripple.to === "dark" ? "#0a0a0b" : "#fafafa" }}
-          />
-        )}
-      </AnimatePresence>
-
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-4xl items-center gap-2 px-4 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground text-background">
               <span className="text-[13px] font-semibold">M</span>
@@ -106,14 +131,16 @@ function MinimalTab() {
           >
             <Search className="h-3.5 w-3.5 shrink-0" />
             <span className="flex-1 truncate">Search anything</span>
-            <kbd className="hidden sm:inline rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd>
+            <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[10px] sm:inline">⌘K</kbd>
           </button>
           <div className="flex items-center gap-1">
-            <ThemeToggle dark={!!dark} onToggle={() => toggleMode()} />
+            <ThemeToggle dark={!!dark} onToggle={(ev) => toggleMode(ev)} />
             <button
               onClick={() => setFocusMode((v) => !v)}
               aria-label="Toggle focus mode"
-              className={`rounded-md p-2 transition-colors hover:bg-muted ${focusMode ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`rounded-md p-2 transition-colors hover:bg-muted ${
+                focusMode ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               <Sparkles className="h-4 w-4" />
             </button>
@@ -128,47 +155,71 @@ function MinimalTab() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-16">
-        <motion.section
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+        {/* Two-column on desktop: Hero + Search on the left, Notes on the right.
+            Single column on mobile. Focus mode collapses to just Hero + Search. */}
+        <div
+          className={`grid grid-cols-1 gap-8 lg:gap-12 ${
+            focusMode ? "" : "lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]"
+          }`}
         >
-          <Hero />
-          <div className="mt-8">
-            {hydrated && (
-              <UniversalSearch
-                defaultEngine={engine}
-                setDefaultEngine={setEngine}
-                onRecent={(q) => setRecent((prev) => [q, ...prev.filter((x) => x !== q)].slice(0, 8))}
-              />
-            )}
-          </div>
-          {!focusMode && recent.length > 0 && (
-            <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-1.5">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Recent</span>
-              {recent.slice(0, 6).map((r) => (
-                <button
-                  key={r}
-                  onClick={() => (document.querySelector('input[aria-label="Universal search"]') as HTMLInputElement | null)?.focus()}
-                  className="rounded-full border border-border bg-background/60 px-2.5 py-0.5 text-xs text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
-                >
-                  {r}
-                </button>
-              ))}
+          <motion.section
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="min-w-0"
+          >
+            <Hero />
+            <div className="mt-6 sm:mt-8">
+              {hydrated && (
+                <UniversalSearch
+                  defaultEngine={engine}
+                  setDefaultEngine={setEngine}
+                  onRecent={(q) =>
+                    setRecent((prev) => [q, ...prev.filter((x) => x !== q)].slice(0, 8))
+                  }
+                />
+              )}
             </div>
+            {!focusMode && recent.length > 0 && (
+              <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-1.5">
+                <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Recent</span>
+                {recent.slice(0, 6).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() =>
+                      (document.querySelector('input[aria-label="Universal search"]') as HTMLInputElement | null)?.focus()
+                    }
+                    className="rounded-full border border-border bg-background/60 px-2.5 py-0.5 text-xs text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.section>
+
+          {!focusMode && (
+            <motion.aside
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.08 }}
+              className="min-w-0 lg:sticky lg:top-20 lg:self-start"
+              aria-label="Notes"
+            >
+              <Notes />
+            </motion.aside>
           )}
-        </motion.section>
+        </div>
 
         {!focusMode && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.08 }}
-            className="mt-10 space-y-8 sm:mt-14"
+            transition={{ duration: 0.3, delay: 0.14 }}
+            className="mt-10 sm:mt-14"
           >
             <QuickAccess />
-            <Notes />
           </motion.div>
         )}
 
@@ -187,7 +238,10 @@ function MinimalTab() {
       <CommandPalette
         open={paletteOpen}
         onOpenChange={setPaletteOpen}
-        onOpenNotes={() => { setFocusMode(false); document.querySelector('#notes-heading')?.scrollIntoView({ behavior: "smooth" }); }}
+        onOpenNotes={() => {
+          setFocusMode(false);
+          document.querySelector("#notes-heading")?.scrollIntoView({ behavior: "smooth" });
+        }}
         onOpenSettings={() => setSettingsOpen(true)}
         onStartTimer={() => {}}
         onToggleFocus={() => setFocusMode((v) => !v)}
