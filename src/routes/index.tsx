@@ -158,7 +158,7 @@ function MinimalTab() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+      <main className="relative z-10 mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {/* Two-column on desktop: Hero + Search on the left, Notes on the right.
             Single column on mobile. Focus mode collapses to just Hero + Search. */}
         <div
