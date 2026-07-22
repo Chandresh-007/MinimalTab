@@ -9,9 +9,10 @@ import { Hero } from "@/components/minimaltab/Hero";
 import { QuickAccess } from "@/components/minimaltab/QuickAccess";
 import { Notes } from "@/components/minimaltab/Notes";
 import { CommandPalette } from "@/components/minimaltab/CommandPalette";
-import { Settings } from "@/components/minimaltab/Settings";
+import { Settings, type WallpaperId } from "@/components/minimaltab/Settings";
 import { WaveBackground } from "@/components/minimaltab/WaveBackground";
 import { ThemeToggle } from "@/components/minimaltab/ThemeToggle";
+import { WeatherWidget } from "@/components/minimaltab/WeatherWidget";
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
 
 export const Route = createFileRoute("/")({
