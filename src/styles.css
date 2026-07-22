@@ -180,41 +180,51 @@
   z-index: 2;
 }
 
-/* MinimalTab theme variants — only colors change, never layout. */
-html[data-theme="paper"] {
-  --background: oklch(0.985 0.008 85);
-  --foreground: oklch(0.22 0.02 60);
-  --card: oklch(0.99 0.006 85);
-  --muted: oklch(0.955 0.012 85);
-  --muted-foreground: oklch(0.5 0.02 70);
-  --border: oklch(0.9 0.015 80);
-  --popover: oklch(0.99 0.006 85);
+/* MinimalTab wallpaper gradients — applied as a background layer behind the wave. */
+html[data-wallpaper="aurora"] {
+  --wallpaper: radial-gradient(ellipse at 20% 0%, oklch(0.78 0.12 260 / 0.35), transparent 50%),
+               radial-gradient(ellipse at 80% 20%, oklch(0.82 0.1 180 / 0.25), transparent 50%),
+               radial-gradient(ellipse at 50% 100%, oklch(0.76 0.08 300 / 0.2), transparent 50%);
 }
-html[data-theme="notion"] {
-  --background: oklch(0.995 0 0);
-  --foreground: oklch(0.2 0.008 260);
-  --card: oklch(0.985 0.004 260);
-  --muted: oklch(0.965 0.006 260);
-  --muted-foreground: oklch(0.52 0.02 260);
-  --border: oklch(0.92 0.008 260);
-  --popover: oklch(1 0 0);
+html[data-wallpaper="aurora"].dark {
+  --wallpaper: radial-gradient(ellipse at 20% 0%, oklch(0.45 0.18 260 / 0.35), transparent 55%),
+               radial-gradient(ellipse at 80% 20%, okllch(0.42 0.14 180 / 0.25), transparent 55%),
+               radial-gradient(ellipse at 50% 100%, oklch(0.4 0.12 300 / 0.25), transparent 55%);
 }
-html[data-theme="midnight"] {
-  --background: oklch(0.14 0.015 260);
-  --foreground: oklch(0.96 0.005 260);
-  --card: oklch(0.18 0.018 260);
-  --popover: oklch(0.18 0.018 260);
-  --muted: oklch(0.22 0.02 260);
-  --muted-foreground: oklch(0.7 0.015 260);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
+
+html[data-wallpaper="sunset"] {
+  --wallpaper: radial-gradient(ellipse at 10% 20%, oklch(0.75 0.14 40 / 0.3), transparent 55%),
+               radial-gradient(ellipse at 90% 10%, oklch(0.78 0.12 280 / 0.25), transparent 55%),
+               radial-gradient(ellipse at 50% 100%, oklch(0.82 0.1 60 / 0.2), transparent 55%);
 }
-html[data-theme="terminal"] {
-  --background: oklch(0.15 0.02 150);
-  --foreground: oklch(0.9 0.14 145);
-  --card: oklch(0.19 0.02 150);
-  --popover: oklch(0.19 0.02 150);
-  --muted: oklch(0.24 0.02 150);
-  --muted-foreground: oklch(0.65 0.09 145);
-  --border: oklch(0.9 0.14 145 / 20%);
+html[data-wallpaper="sunset"].dark {
+  --wallpaper: radial-gradient(ellipse at 10% 20%, oklch(0.45 0.18 30 / 0.35), transparent 55%),
+               radial-gradient(ellipse at 90% 10%, oklch(0.4 0.16 280 / 0.3), transparent 55%),
+               radial-gradient(ellipse at 50% 100%, oklch(0.42 0.14 50 / 0.25), transparent 55%);
+}
+
+html[data-wallpaper="forest"] {
+  --wallpaper: radial-gradient(ellipse at 0% 0%, oklch(0.8 0.1 140 / 0.28), transparent 55%),
+               radial-gradient(ellipse at 100% 30%, oklch(0.78 0.08 180 / 0.22), transparent 55%),
+               radial-gradient(ellipse at 50% 100%, oklch(0.82 0.06 100 / 0.18), transparent 55%);
+}
+html[data-wallpaper="forest"].dark {
+  --wallpaper: radial-gradient(ellipse at 0% 0%, oklch(0.38 0.14 140 / 0.32), transparent 55%),
+               radial-gradient(ellipse at 100% 30%, oklch(0.35 0.12 180 / 0.28), transparent 55%),
+               radial-gradient(ellipse at 50% 100%, oklch(0.4 0.1 100 / 0.22), transparent 55%);
+}
+
+html[data-wallpaper="minimal"] {
+  --wallpaper: radial-gradient(ellipse at 50% 0%, oklch(0.9 0.01 260 / 0.25), transparent 55%);
+}
+html[data-wallpaper="minimal"].dark {
+  --wallpaper: radial-gradient(ellipse at 50% 0%, oklch(0.35 0.03 260 / 0.3), transparent 55%);
+}
+
+html[data-wallpaper="solid"] {
+  --wallpaper: none;
+}
+
+.wallpaper-layer {
+  background: var(--wallpaper, none);
 }
