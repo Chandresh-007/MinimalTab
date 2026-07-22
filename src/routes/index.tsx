@@ -13,6 +13,7 @@ import { Settings } from "@/components/minimaltab/Settings";
 import { WaveBackground } from "@/components/minimaltab/WaveBackground";
 import { ThemeToggle } from "@/components/minimaltab/ThemeToggle";
 import { WeatherWidget } from "@/components/minimaltab/WeatherWidget";
+import { BuyMeCoffee } from "@/components/minimaltab/BuyMeCoffee";
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
 
 export const Route = createFileRoute("/")({
@@ -260,6 +261,7 @@ function MinimalTab() {
         dailyFocus={dailyFocus}
         setDailyFocus={setDailyFocus}
       />
+      <BuyMeCoffee />
     </div>
   );
 }
