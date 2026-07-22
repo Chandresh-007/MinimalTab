@@ -1,12 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { StickyNote, Pin, PinOff, Plus, Trash2 } from "lucide-react";
+import { StickyNote, Pin, PinOff, Plus, Trash2, CheckSquare, Square, X } from "lucide-react";
 import { useLocalStorage } from "@/lib/minimaltab/storage";
 
-type Note = { id: string; title: string; body: string; pinned: boolean; updated: number };
+type Todo = { id: string; text: string; done: boolean };
+type Note = {
+  id: string;
+  title: string;
+  body: string;
+  pinned: boolean;
+  updated: number;
+  todos?: Todo[];
+};
 
 export function Notes() {
   const [notes, setNotes] = useLocalStorage<Note[]>("mt.notes", []);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [newTodo, setNewTodo] = useState("");
   const listRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const titleRef = useRef<HTMLInputElement | null>(null);
   const bodyRef = useRef<HTMLTextAreaElement | null>(null);
@@ -18,7 +27,14 @@ export function Notes() {
   const active = notes.find((n) => n.id === activeId) ?? null;
 
   const create = () => {
-    const n: Note = { id: crypto.randomUUID(), title: "Untitled", body: "", pinned: false, updated: Date.now() };
+    const n: Note = {
+      id: crypto.randomUUID(),
+      title: "Untitled",
+      body: "",
+      pinned: false,
+      updated: Date.now(),
+      todos: [],
+    };
     setNotes([n, ...notes]);
     setActiveId(n.id);
     requestAnimationFrame(() => titleRef.current?.focus());
@@ -33,6 +49,24 @@ export function Notes() {
     const next = notes.filter((n) => n.id !== id);
     setNotes(next);
     if (activeId === id) setActiveId(next[0]?.id ?? null);
+  };
+
+  const addTodo = () => {
+    if (!active || !newTodo.trim()) return;
+    const todos = [...(active.todos ?? []), { id: crypto.randomUUID(), text: newTodo.trim(), done: false }];
+    update({ todos });
+    setNewTodo("");
+  };
+
+  const toggleTodo = (tid: string) => {
+    if (!active) return;
+    const todos = (active.todos ?? []).map((t) => (t.id === tid ? { ...t, done: !t.done } : t));
+    update({ todos });
+  };
+
+  const removeTodo = (tid: string) => {
+    if (!active) return;
+    update({ todos: (active.todos ?? []).filter((t) => t.id !== tid) });
   };
 
   const sorted = [...notes].sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.updated - a.updated);
@@ -72,7 +106,7 @@ export function Notes() {
   };
 
   return (
-    <section aria-labelledby="notes-heading" className="rounded-2xl border border-border bg-card">
+    <section aria-labelledby="notes-heading" className="overflow-hidden rounded-2xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <h2 id="notes-heading" className="flex items-center gap-2 text-sm font-medium text-foreground">
           <StickyNote className="h-4 w-4 text-muted-foreground" /> Notes
@@ -81,7 +115,7 @@ export function Notes() {
           <Plus className="h-3 w-3" /> New
         </button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-[10rem_1fr]" style={{ minHeight: "16rem" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-[10rem_minmax(0,1fr)]" style={{ minHeight: "16rem" }}>
         <ul
           role="listbox"
           aria-label="Notes"
@@ -102,16 +136,16 @@ export function Notes() {
                   activeId === n.id ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/60"
                 }`}
               >
-                {n.pinned && <Pin className="h-3 w-3" />}
-                <span className="flex-1 truncate">{n.title || "Untitled"}</span>
+                {n.pinned && <Pin className="h-3 w-3 shrink-0" />}
+                <span className="min-w-0 flex-1 truncate">{n.title || "Untitled"}</span>
               </button>
             </li>
           ))}
         </ul>
-        <div className="p-3">
+        <div className="min-w-0 p-3">
           {active ? (
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex min-w-0 items-center gap-2">
                 <input
                   ref={titleRef}
                   value={active.title}
@@ -124,19 +158,19 @@ export function Notes() {
                     }
                   }}
                   placeholder="Title"
-                  className="flex-1 bg-transparent text-base font-semibold text-foreground outline-none placeholder:text-muted-foreground"
+                  className="min-w-0 flex-1 truncate bg-transparent text-base font-semibold text-foreground outline-none placeholder:text-muted-foreground"
                 />
                 <button
                   onClick={() => update({ pinned: !active.pinned })}
                   aria-label={active.pinned ? "Unpin" : "Pin"}
-                  className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  className="shrink-0 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   {active.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
                 </button>
                 <button
                   onClick={() => remove(active.id)}
                   aria-label="Delete note"
-                  className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  className="shrink-0 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -147,9 +181,64 @@ export function Notes() {
                 onChange={(e) => update({ body: e.target.value })}
                 onKeyDown={onEditorKey}
                 placeholder="Write in markdown — auto-saved. Esc to return to list."
-                className="mt-2 h-40 w-full resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+                className="mt-2 h-32 w-full resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
               />
-              <p className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+
+              {/* To-do list */}
+              <div className="mt-2 border-t border-border pt-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">To-do</span>
+                  {active.todos && active.todos.length > 0 && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {active.todos.filter((t) => t.done).length}/{active.todos.length}
+                    </span>
+                  )}
+                </div>
+                <ul className="space-y-1">
+                  {(active.todos ?? []).map((t) => (
+                    <li key={t.id} className="group flex min-w-0 items-center gap-2">
+                      <button
+                        onClick={() => toggleTodo(t.id)}
+                        aria-label={t.done ? "Mark as not done" : "Mark as done"}
+                        className="shrink-0 text-muted-foreground hover:text-foreground"
+                      >
+                        {t.done ? <CheckSquare className="h-3.5 w-3.5" /> : <Square className="h-3.5 w-3.5" />}
+                      </button>
+                      <span
+                        className={`min-w-0 flex-1 truncate text-sm ${
+                          t.done ? "text-muted-foreground line-through" : "text-foreground"
+                        }`}
+                      >
+                        {t.text}
+                      </span>
+                      <button
+                        onClick={() => removeTodo(t.id)}
+                        aria-label="Remove todo"
+                        className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 hover:bg-muted hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-2 flex items-center gap-2">
+                  <Plus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <input
+                    value={newTodo}
+                    onChange={(e) => setNewTodo(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTodo();
+                      }
+                    }}
+                    placeholder="Add a task…"
+                    className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                  />
+                </div>
+              </div>
+
+              <p className="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">
                 Auto-saved · {new Date(active.updated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </p>
             </div>
