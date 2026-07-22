@@ -1,30 +1,21 @@
-import { useEffect } from "react";
+import { Coffee } from "lucide-react";
 
 /**
- * Injects the Buy Me a Coffee floating button (bottom-right by default).
- * The upstream script auto-appends its own fixed-position button to <body>.
+ * Buy Me a Coffee button — inline in the header's top-right cluster so it
+ * never overlaps content, and compact on mobile (icon only) to preserve space.
  */
 export function BuyMeCoffee() {
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    if (document.getElementById("bmc-script")) return;
-
-    const script = document.createElement("script");
-    script.id = "bmc-script";
-    script.type = "text/javascript";
-    script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
-    script.setAttribute("data-name", "bmc-button");
-    script.setAttribute("data-slug", "chandresh_p");
-    script.setAttribute("data-color", "#FFDD00");
-    script.setAttribute("data-emoji", "");
-    script.setAttribute("data-font", "Poppins");
-    script.setAttribute("data-text", "Buy me a coffee");
-    script.setAttribute("data-outline-color", "#000000");
-    script.setAttribute("data-font-color", "#000000");
-    script.setAttribute("data-coffee-color", "#ffffff");
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
-
-  return null;
+  return (
+    <a
+      href="https://www.buymeacoffee.com/chandresh_p"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Buy me a coffee"
+      className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-[#FFDD00] px-2 py-1.5 text-[11px] font-semibold text-black shadow-sm transition-transform hover:scale-[1.03] hover:shadow-md sm:px-2.5 sm:text-xs"
+      style={{ fontFamily: "Poppins, ui-sans-serif, system-ui, sans-serif" }}
+    >
+      <Coffee className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
+      <span className="hidden sm:inline">Buy me a coffee</span>
+    </a>
+  );
 }

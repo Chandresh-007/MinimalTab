@@ -138,6 +138,7 @@ function MinimalTab() {
           </button>
           <div className="flex items-center gap-1">
             {hydrated && <WeatherWidget />}
+            <BuyMeCoffee />
             <ThemeToggle dark={!!dark} onToggle={(ev) => toggleMode(ev)} />
             <button
               onClick={() => setFocusMode((v) => !v)}
@@ -261,7 +262,6 @@ function MinimalTab() {
         dailyFocus={dailyFocus}
         setDailyFocus={setDailyFocus}
       />
-      <BuyMeCoffee />
     </div>
   );
 }
