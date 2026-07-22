@@ -247,7 +247,6 @@ function MinimalTab() {
           document.querySelector("#notes-heading")?.scrollIntoView({ behavior: "smooth" });
         }}
         onOpenSettings={() => setSettingsOpen(true)}
-        onStartTimer={() => {}}
         onToggleFocus={() => setFocusMode((v) => !v)}
         onToggleTheme={() => toggleMode()}
         defaultEngine={engine}
