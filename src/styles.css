@@ -188,7 +188,7 @@ html[data-wallpaper="aurora"] {
 }
 html[data-wallpaper="aurora"].dark {
   --wallpaper: radial-gradient(ellipse at 20% 0%, oklch(0.45 0.18 260 / 0.35), transparent 55%),
-               radial-gradient(ellipse at 80% 20%, okllch(0.42 0.14 180 / 0.25), transparent 55%),
+               radial-gradient(ellipse at 80% 20%, oklch(0.42 0.14 180 / 0.25), transparent 55%),
                radial-gradient(ellipse at 50% 100%, oklch(0.4 0.12 300 / 0.25), transparent 55%);
 }
 
