@@ -265,7 +265,7 @@ export function QuickAccess() {
           <textarea
             value={importText}
             onChange={(e) => setImportText(e.target.value)}
-            placeholder="<A HREF=\"...\">...</A> or https://..."
+            placeholder={`Paste <A HREF="...">...</A> or https://...`}
             className="h-24 w-full resize-none rounded-lg border border-border bg-transparent p-2 text-xs outline-none placeholder:text-muted-foreground"
           />
           <div className="mt-2 flex justify-end gap-2">
