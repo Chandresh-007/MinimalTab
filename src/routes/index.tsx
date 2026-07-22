@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell, Settings as SettingsIcon, User, Plus, Search, Sparkles,
-  LayoutGrid, Bookmark, StickyNote, Calendar as CalendarIcon, Timer,
+  LayoutGrid, Bookmark, StickyNote, Calendar as CalendarIcon,
   Home, Cpu,
 } from "lucide-react";
 
@@ -14,6 +14,8 @@ import { TodayFocus } from "@/components/minimaltab/TodayFocus";
 import { Notes } from "@/components/minimaltab/Notes";
 import { CommandPalette } from "@/components/minimaltab/CommandPalette";
 import { Settings } from "@/components/minimaltab/Settings";
+import { WaveBackground } from "@/components/minimaltab/WaveBackground";
+import { ThemeToggle } from "@/components/minimaltab/ThemeToggle";
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
 
 export const Route = createFileRoute("/")({
@@ -40,7 +42,7 @@ const NAV = [
 
 function MinimalTab() {
   const hydrated = useHydrated();
-  const [theme, setTheme] = useLocalStorage<string>("mt.theme", "light");
+  const [dark, setDark] = useLocalStorage<boolean>("mt.dark", false);
   const [name, setName] = useLocalStorage<string>("mt.name", "");
   const [engine, setEngine] = useLocalStorage<string>("mt.engine", "duckduckgo");
   const [recent, setRecent] = useLocalStorage<string[]>("mt.recent", []);
@@ -49,17 +51,15 @@ function MinimalTab() {
   const [focusMode, setFocusMode] = useState(false);
   const [timerTick, setTimerTick] = useState(0);
   const [nav, setNav] = useState("dashboard");
+  // Ripple animation coordinates for mode change
+  const [ripple, setRipple] = useState<{ x: number; y: number; to: "dark" | "light" } | null>(null);
 
-  // Apply theme
+  // Apply mode
   useEffect(() => {
     if (typeof document === "undefined") return;
-    if (theme === "midnight" || theme === "terminal") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
+    document.documentElement.classList.toggle("dark", !!dark);
+    document.documentElement.removeAttribute("data-theme");
+  }, [dark]);
 
   // Global shortcuts
   useEffect(() => {
@@ -84,16 +84,39 @@ function MinimalTab() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const cycleTheme = () => {
-    const order = ["light", "paper", "notion", "midnight", "terminal"];
-    const i = order.indexOf(theme);
-    setTheme(order[(i + 1) % order.length]);
+  const toggleMode = (e?: React.MouseEvent) => {
+    const x = e?.clientX ?? window.innerWidth - 40;
+    const y = e?.clientY ?? 40;
+    setRipple({ x, y, to: dark ? "light" : "dark" });
+    setDark(!dark);
+    window.setTimeout(() => setRipple(null), 900);
   };
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="relative min-h-dvh bg-background text-foreground">
+      <WaveBackground />
+
+      {/* Mode-change ripple overlay */}
+      <AnimatePresence>
+        {ripple && (
+          <motion.div
+            key={`${ripple.x}-${ripple.y}-${ripple.to}`}
+            initial={{ clipPath: `circle(0px at ${ripple.x}px ${ripple.y}px)` }}
+            animate={{
+              clipPath: `circle(${Math.hypot(window.innerWidth, window.innerHeight) * 1.1}px at ${ripple.x}px ${ripple.y}px)`,
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="pointer-events-none fixed inset-0 z-[60]"
+            style={{
+              background: ripple.to === "dark" ? "#0a0a0b" : "#fafafa",
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/80 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground text-background">
@@ -103,7 +126,7 @@ function MinimalTab() {
           </div>
           <button
             onClick={() => setPaletteOpen(true)}
-            className="ml-2 flex flex-1 items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:text-foreground"
+            className="ml-2 flex flex-1 items-center gap-2 rounded-lg border border-border bg-card/60 px-3 py-1.5 text-left text-xs text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
             aria-label="Open command palette"
           >
             <Search className="h-3.5 w-3.5" />
@@ -111,6 +134,7 @@ function MinimalTab() {
             <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd>
           </button>
           <div className="flex items-center gap-1">
+            <ThemeToggle dark={!!dark} onToggle={() => toggleMode()} />
             <button onClick={() => setPaletteOpen(true)} aria-label="Quick add" className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               <Plus className="h-4 w-4" />
             </button>
@@ -127,7 +151,7 @@ function MinimalTab() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[14rem_1fr]">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 md:grid-cols-[13rem_1fr]">
         {/* Sidebar */}
         {!focusMode && (
           <aside className="hidden md:block">
@@ -162,47 +186,56 @@ function MinimalTab() {
           </aside>
         )}
 
-        {/* Main */}
+        {/* Main — new layout: hero+search+timer side-by-side, quick access + notes below */}
         <main className="min-w-0">
-          <motion.section
-            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}
-            className="rounded-3xl border border-border bg-card p-8 sm:p-12"
-          >
-            <Hero />
-            <div className="mt-8">
-              {hydrated && (
-                <UniversalSearch
-                  defaultEngine={engine}
-                  setDefaultEngine={setEngine}
-                  onRecent={(q) => setRecent((prev) => [q, ...prev.filter((x) => x !== q)].slice(0, 8))}
-                />
-              )}
-            </div>
-            {!focusMode && recent.length > 0 && (
-              <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center gap-1.5">
-                <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Recent</span>
-                {recent.slice(0, 6).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => (document.querySelector('input[aria-label="Universal search"]') as HTMLInputElement | null)?.focus()}
-                    className="rounded-full border border-border bg-background px-2.5 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {r}
-                  </button>
-                ))}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_20rem]">
+            <motion.section
+              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+              className="rounded-3xl border border-border bg-card/60 p-8 backdrop-blur-xl sm:p-12"
+            >
+              <Hero />
+              <div className="mt-8">
+                {hydrated && (
+                  <UniversalSearch
+                    defaultEngine={engine}
+                    setDefaultEngine={setEngine}
+                    onRecent={(q) => setRecent((prev) => [q, ...prev.filter((x) => x !== q)].slice(0, 8))}
+                  />
+                )}
               </div>
+              {!focusMode && recent.length > 0 && (
+                <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Recent</span>
+                  {recent.slice(0, 6).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => (document.querySelector('input[aria-label="Universal search"]') as HTMLInputElement | null)?.focus()}
+                      className="rounded-full border border-border bg-background/60 px-2.5 py-0.5 text-xs text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.section>
+
+            {!focusMode && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 }}
+              >
+                <TodayFocus triggerStart={timerTick} />
+              </motion.div>
             )}
-          </motion.section>
+          </div>
 
           {!focusMode && (
-            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="lg:col-span-2 space-y-6">
                 <QuickAccess />
                 <Notes />
               </div>
               <div className="space-y-6">
-                <TodayFocus triggerStart={timerTick} />
-                <section className="rounded-2xl border border-border bg-card p-5">
+                <section className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur">
                   <h2 className="mb-3 flex items-center gap-2 text-sm font-medium">
                     <Cpu className="h-4 w-4 text-muted-foreground" /> AI assistant
                   </h2>
@@ -213,7 +246,7 @@ function MinimalTab() {
                     ))}
                   </div>
                 </section>
-                <section className="rounded-2xl border border-border bg-card p-5">
+                <section className="rounded-2xl border border-border bg-card/70 p-5 backdrop-blur">
                   <h2 className="mb-3 flex items-center gap-2 text-sm font-medium">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" /> Today
                   </h2>
@@ -243,7 +276,7 @@ function MinimalTab() {
         onOpenSettings={() => setSettingsOpen(true)}
         onStartTimer={() => setTimerTick((n) => n + 1)}
         onToggleFocus={() => setFocusMode((v) => !v)}
-        onToggleTheme={cycleTheme}
+        onToggleTheme={() => toggleMode()}
         defaultEngine={engine}
       />
       <Settings
@@ -251,8 +284,6 @@ function MinimalTab() {
         onClose={() => setSettingsOpen(false)}
         name={name}
         setName={setName}
-        theme={theme}
-        setTheme={setTheme}
         defaultEngine={engine}
         setDefaultEngine={setEngine}
       />
