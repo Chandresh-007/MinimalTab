@@ -108,7 +108,7 @@ export function CommandPalette({
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.15, ease: [0.2, 0.8, 0.2, 1] }}
             className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 border-b border-border px-4">
               <Command className="h-4 w-4 text-muted-foreground" />
