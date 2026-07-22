@@ -26,10 +26,11 @@ export function Hero() {
 
   return (
     <div className="mx-auto w-full max-w-3xl text-center">
+      <h1 className="sr-only">MinimalTab — Productivity Dashboard for your browser</h1>
       <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{date}</p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+      <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
         {g}{name ? `, ${name}` : ""}.
-      </h1>
+      </p>
       <p className="mt-1 font-mono text-5xl font-light tracking-tight text-foreground/90 tabular-nums sm:text-6xl lg:text-7xl">
         {time}
       </p>

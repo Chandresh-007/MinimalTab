@@ -1,0 +1,9 @@
+# MinimalTab
+
+> A premium browser homepage and productivity OS — universal search, command palette, notes, to-dos, quick links, weather, and focus mode.
+
+MinimalTab replaces the default new-tab page with a fast, keyboard-first dashboard. It runs entirely in the browser with local storage — no account required.
+
+## Pages
+
+- [Home](/): Universal search, hero greeting, quick access links, notes with to-dos, weather widget, and command palette (⌘K).
