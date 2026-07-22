@@ -137,6 +137,7 @@ function MinimalTab() {
             <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[10px] sm:inline">⌘K</kbd>
           </button>
           <div className="flex items-center gap-1">
+            {hydrated && <WeatherWidget />}
             <ThemeToggle dark={!!dark} onToggle={(ev) => toggleMode(ev)} />
             <button
               onClick={() => setFocusMode((v) => !v)}
