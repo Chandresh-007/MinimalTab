@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StickyNote, Pin, PinOff, Plus, Trash2 } from "lucide-react";
 import { useLocalStorage } from "@/lib/minimaltab/storage";
 
@@ -7,6 +7,9 @@ type Note = { id: string; title: string; body: string; pinned: boolean; updated:
 export function Notes() {
   const [notes, setNotes] = useLocalStorage<Note[]>("mt.notes", []);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const listRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const titleRef = useRef<HTMLInputElement | null>(null);
+  const bodyRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (!activeId && notes.length) setActiveId(notes[0].id);
@@ -18,6 +21,7 @@ export function Notes() {
     const n: Note = { id: crypto.randomUUID(), title: "Untitled", body: "", pinned: false, updated: Date.now() };
     setNotes([n, ...notes]);
     setActiveId(n.id);
+    requestAnimationFrame(() => titleRef.current?.focus());
   };
 
   const update = (patch: Partial<Note>) => {
@@ -33,6 +37,40 @@ export function Notes() {
 
   const sorted = [...notes].sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.updated - a.updated);
 
+  const onListKey = (e: React.KeyboardEvent, id: string) => {
+    const idx = sorted.findIndex((n) => n.id === id);
+    if (e.key === "ArrowDown" || e.key === "j") {
+      e.preventDefault();
+      const next = sorted[Math.min(sorted.length - 1, idx + 1)];
+      if (next) {
+        setActiveId(next.id);
+        listRefs.current[next.id]?.focus();
+      }
+    } else if (e.key === "ArrowUp" || e.key === "k") {
+      e.preventDefault();
+      const prev = sorted[Math.max(0, idx - 1)];
+      if (prev) {
+        setActiveId(prev.id);
+        listRefs.current[prev.id]?.focus();
+      }
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      setActiveId(id);
+      titleRef.current?.focus();
+    } else if (e.key === "Delete" && e.shiftKey) {
+      e.preventDefault();
+      remove(id);
+    }
+  };
+
+  const onEditorKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      (e.target as HTMLElement).blur();
+      if (active) listRefs.current[active.id]?.focus();
+    }
+  };
+
   return (
     <section aria-labelledby="notes-heading" className="rounded-2xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -44,12 +82,22 @@ export function Notes() {
         </button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-[10rem_1fr]" style={{ minHeight: "16rem" }}>
-        <ul className="max-h-64 overflow-y-auto border-b border-border p-1 sm:max-h-none sm:border-b-0 sm:border-r">
+        <ul
+          role="listbox"
+          aria-label="Notes"
+          className="max-h-64 overflow-y-auto border-b border-border p-1 sm:max-h-none sm:border-b-0 sm:border-r"
+        >
           {sorted.length === 0 && <li className="p-3 text-xs text-muted-foreground">No notes yet.</li>}
           {sorted.map((n) => (
             <li key={n.id}>
               <button
+                ref={(el) => {
+                  listRefs.current[n.id] = el;
+                }}
                 onClick={() => setActiveId(n.id)}
+                onKeyDown={(e) => onListKey(e, n.id)}
+                role="option"
+                aria-selected={activeId === n.id}
                 className={`flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs transition-colors ${
                   activeId === n.id ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/60"
                 }`}
@@ -65,8 +113,16 @@ export function Notes() {
             <div>
               <div className="flex items-center gap-2">
                 <input
+                  ref={titleRef}
                   value={active.title}
                   onChange={(e) => update({ title: e.target.value })}
+                  onKeyDown={(e) => {
+                    onEditorKey(e);
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      bodyRef.current?.focus();
+                    }
+                  }}
                   placeholder="Title"
                   className="flex-1 bg-transparent text-base font-semibold text-foreground outline-none placeholder:text-muted-foreground"
                 />
@@ -86,9 +142,11 @@ export function Notes() {
                 </button>
               </div>
               <textarea
+                ref={bodyRef}
                 value={active.body}
                 onChange={(e) => update({ body: e.target.value })}
-                placeholder="Write in markdown — auto-saved."
+                onKeyDown={onEditorKey}
+                placeholder="Write in markdown — auto-saved. Esc to return to list."
                 className="mt-2 h-40 w-full resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
               />
               <p className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">

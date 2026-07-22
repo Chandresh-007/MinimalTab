@@ -6,7 +6,7 @@ export function ThemeToggle({
   onToggle,
 }: {
   dark: boolean;
-  onToggle: () => void;
+  onToggle: (e: React.MouseEvent) => void;
 }) {
   return (
     <button
