@@ -87,40 +87,42 @@ export function WaveBackground() {
       ctx.clearRect(0, 0, width, height);
 
       const dark = isDark();
-      const dotColor = "255,255,255";
-      const glowColor = dark ? "102,146,255" : "255,255,255";
+      const dotColor = dark ? "255,255,255" : "30,41,59"; // slate-800 in light mode for visibility
+      const starColor = dark ? "255,255,255" : "71,85,105"; // slate-600 in light
+      const glowColor = dark ? "102,146,255" : "148,163,255";
 
-      // Soft theme-aware wash so white dots stay visible in both modes.
+      // Soft theme-aware wash so dots stay visible in both modes.
       const wash = ctx.createRadialGradient(width * 0.5, height * 0.12, 0, width * 0.5, height * 0.12, Math.max(width, height));
-      wash.addColorStop(0, dark ? `rgba(${glowColor},0.16)` : `rgba(${glowColor},0.58)`);
-      wash.addColorStop(0.52, dark ? "rgba(255,255,255,0.035)" : "rgba(226,232,240,0.22)");
+      wash.addColorStop(0, dark ? `rgba(${glowColor},0.16)` : `rgba(${glowColor},0.14)`);
+      wash.addColorStop(0.52, dark ? "rgba(255,255,255,0.035)" : "rgba(226,232,240,0.18)");
       wash.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = wash;
       ctx.fillRect(0, 0, width, height);
 
-      // Wavy dot grid. White in both themes, but opacity adapts for legibility.
+      // Wavy dot grid — theme-aware color and opacity.
       for (const point of grid) {
         const wave =
           Math.sin((point.x + t * 38) * 0.012 + point.row * 0.35) +
           Math.cos((point.y + t * 26) * 0.014 + point.col * 0.28);
         const dx = point.x + Math.cos(wave) * amplitude;
         const dy = point.y + Math.sin(wave) * amplitude;
-        const alpha = dark ? 0.16 + 0.12 * Math.sin(wave + t) : 0.32 + 0.13 * Math.sin(wave + t);
-        ctx.fillStyle = `rgba(${dotColor},${Math.max(0.04, alpha).toFixed(3)})`;
+        const alpha = dark ? 0.16 + 0.12 * Math.sin(wave + t) : 0.22 + 0.14 * Math.sin(wave + t);
+        ctx.fillStyle = `rgba(${dotColor},${Math.max(0.05, alpha).toFixed(3)})`;
         ctx.beginPath();
-        ctx.arc(dx, dy, dark ? 1.05 : 1.25, 0, Math.PI * 2);
+        ctx.arc(dx, dy, dark ? 1.05 : 1.15, 0, Math.PI * 2);
         ctx.fill();
       }
 
       // Twinkling stars. Disabled under reduced motion.
       for (const s of stars) {
         const twinkle = 0.55 + 0.45 * Math.sin(t * s.speed + s.phase);
-        const alpha = (dark ? 0.55 : 0.3) * twinkle;
-        ctx.fillStyle = `rgba(${dotColor},${alpha.toFixed(3)})`;
+        const alpha = (dark ? 0.55 : 0.35) * twinkle;
+        ctx.fillStyle = `rgba(${starColor},${alpha.toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fill();
       }
+
 
       raf = requestAnimationFrame(draw);
     };
