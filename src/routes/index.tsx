@@ -9,7 +9,7 @@ import { Hero } from "@/components/minimaltab/Hero";
 import { QuickAccess } from "@/components/minimaltab/QuickAccess";
 import { Notes } from "@/components/minimaltab/Notes";
 import { CommandPalette } from "@/components/minimaltab/CommandPalette";
-import { Settings, type WallpaperId } from "@/components/minimaltab/Settings";
+import { Settings } from "@/components/minimaltab/Settings";
 import { WaveBackground } from "@/components/minimaltab/WaveBackground";
 import { ThemeToggle } from "@/components/minimaltab/ThemeToggle";
 import { WeatherWidget } from "@/components/minimaltab/WeatherWidget";
@@ -72,7 +72,7 @@ function MinimalTab() {
   const [name, setName] = useLocalStorage<string>("mt.name", "");
   const [engine, setEngine] = useLocalStorage<string>("mt.engine", "duckduckgo");
   const [recent, setRecent] = useLocalStorage<string[]>("mt.recent", []);
-  const [wallpaper, setWallpaper] = useLocalStorage<WallpaperId>("mt.wallpaper", "aurora");
+  
   const [dailyFocus, setDailyFocus] = useLocalStorage<string>("mt.dailyFocus", "");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -81,8 +81,7 @@ function MinimalTab() {
   useEffect(() => {
     if (typeof document === "undefined") return;
     document.documentElement.classList.toggle("dark", !!dark);
-    document.documentElement.setAttribute("data-wallpaper", wallpaper);
-  }, [dark, wallpaper]);
+  }, [dark]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -258,8 +257,6 @@ function MinimalTab() {
         setName={setName}
         defaultEngine={engine}
         setDefaultEngine={setEngine}
-        wallpaper={wallpaper}
-        setWallpaper={setWallpaper}
         dailyFocus={dailyFocus}
         setDailyFocus={setDailyFocus}
       />

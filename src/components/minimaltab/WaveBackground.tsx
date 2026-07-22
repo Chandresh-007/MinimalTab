@@ -1,79 +1,108 @@
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 /**
- * Animated wavy background that adapts its palette to the active theme.
- * Uses explicit light/dark gradient stops so the transition feels intentional
- * rather than a simple opacity swap.
+ * Full-viewport ambient background: a field of dots arranged on a grid
+ * that gently ripples like a wave, combined with slow twinkling stars.
+ * Colors adapt to light/dark theme by reading the foreground CSS variable.
  */
 export function WaveBackground() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let width = 0;
+    let height = 0;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let raf = 0;
+    let start = performance.now();
+
+    type Star = { x: number; y: number; r: number; phase: number; speed: number };
+    let stars: Star[] = [];
+
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Regenerate stars proportional to viewport area.
+      const count = Math.round((width * height) / 9000);
+      stars = new Array(count).fill(0).map(() => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 1.1 + 0.3,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.6 + Math.random() * 1.4,
+      }));
+    };
+
+    const isDark = () => document.documentElement.classList.contains("dark");
+
+    const draw = (now: number) => {
+      const t = (now - start) / 1000;
+      ctx.clearRect(0, 0, width, height);
+
+      const dark = isDark();
+      const dotColor = dark ? "255,255,255" : "15,23,42";
+      const starColor = dark ? "255,255,255" : "30,41,59";
+
+      // Wavy dot grid.
+      const spacing = 34;
+      const cols = Math.ceil(width / spacing) + 1;
+      const rows = Math.ceil(height / spacing) + 1;
+      const amp = 6;
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const bx = i * spacing;
+          const by = j * spacing;
+          const wave =
+            Math.sin((bx + t * 40) * 0.012 + j * 0.35) +
+            Math.cos((by + t * 30) * 0.014 + i * 0.28);
+          const dx = bx + Math.cos(wave) * amp;
+          const dy = by + Math.sin(wave) * amp;
+          const alpha = dark ? 0.18 + 0.12 * Math.sin(wave + t) : 0.1 + 0.08 * Math.sin(wave + t);
+          ctx.fillStyle = `rgba(${dotColor},${alpha.toFixed(3)})`;
+          ctx.beginPath();
+          ctx.arc(dx, dy, 1.1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Twinkling stars.
+      for (const s of stars) {
+        const twinkle = 0.5 + 0.5 * Math.sin(t * s.speed + s.phase);
+        const alpha = (dark ? 0.75 : 0.35) * twinkle;
+        ctx.fillStyle = `rgba(${starColor},${alpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      raf = requestAnimationFrame(draw);
+    };
+
+    resize();
+    raf = requestAnimationFrame(draw);
+    window.addEventListener("resize", resize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-    >
-      {/* Wallpaper gradient layer */}
-      <div className="wallpaper-layer absolute inset-0 transition-[background] duration-700" />
-
-      {/* Soft radial glow — theme-aware via Tailwind dark variant */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.foreground/6),transparent_60%)] dark:opacity-100 opacity-60" />
-
-      <svg
-        className="absolute inset-x-0 top-0 h-full w-full text-foreground"
-        viewBox="0 0 1440 900"
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient id="wave-a" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.10" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="wave-b" x1="1" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="wave-c" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.05" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        <motion.path
-          fill="url(#wave-a)"
-          initial={{ d: "M0,280 C320,400 640,160 960,260 C1240,340 1360,240 1440,280 L1440,900 L0,900 Z" }}
-          animate={{
-            d: [
-              "M0,280 C320,400 640,160 960,260 C1240,340 1360,240 1440,280 L1440,900 L0,900 Z",
-              "M0,320 C300,220 660,400 960,320 C1220,250 1360,360 1440,300 L1440,900 L0,900 Z",
-              "M0,280 C320,400 640,160 960,260 C1240,340 1360,240 1440,280 L1440,900 L0,900 Z",
-            ],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.path
-          fill="url(#wave-b)"
-          initial={{ d: "M0,480 C260,580 560,400 860,480 C1160,560 1340,440 1440,500 L1440,900 L0,900 Z" }}
-          animate={{
-            d: [
-              "M0,480 C260,580 560,400 860,480 C1160,560 1340,440 1440,500 L1440,900 L0,900 Z",
-              "M0,520 C280,420 580,580 880,500 C1160,430 1340,540 1440,480 L1440,900 L0,900 Z",
-              "M0,480 C260,580 560,400 860,480 C1160,560 1340,440 1440,500 L1440,900 L0,900 Z",
-            ],
-          }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.path
-          fill="url(#wave-c)"
-          initial={{ d: "M0,650 C360,720 720,580 1080,660 C1260,700 1380,620 1440,650 L1440,900 L0,900 Z" }}
-          animate={{
-            d: [
-              "M0,650 C360,720 720,580 1080,660 C1260,700 1380,620 1440,650 L1440,900 L0,900 Z",
-              "M0,680 C340,600 740,740 1060,670 C1280,630 1400,700 1440,660 L1440,900 L0,900 Z",
-              "M0,650 C360,720 720,580 1080,660 C1260,700 1380,620 1440,650 L1440,900 L0,900 Z",
-            ],
-          }}
-          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </svg>
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      {/* Soft radial glow behind the canvas for depth */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.foreground/6),transparent_60%)] opacity-70" />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
     </div>
   );
 }
