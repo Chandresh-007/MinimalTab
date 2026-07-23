@@ -51,23 +51,8 @@ export function Notes() {
     if (activeId === id) setActiveId(next[0]?.id ?? null);
   };
 
-  const addTodo = () => {
-    if (!active || !newTodo.trim()) return;
-    const todos = [...(active.todos ?? []), { id: crypto.randomUUID(), text: newTodo.trim(), done: false }];
-    update({ todos });
-    setNewTodo("");
-  };
 
-  const toggleTodo = (tid: string) => {
-    if (!active) return;
-    const todos = (active.todos ?? []).map((t) => (t.id === tid ? { ...t, done: !t.done } : t));
-    update({ todos });
-  };
 
-  const removeTodo = (tid: string) => {
-    if (!active) return;
-    update({ todos: (active.todos ?? []).filter((t) => t.id !== tid) });
-  };
 
   const sorted = [...notes].sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.updated - a.updated);
 
