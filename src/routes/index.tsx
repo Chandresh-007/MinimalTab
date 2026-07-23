@@ -8,6 +8,7 @@ import { UniversalSearch } from "@/components/minimaltab/UniversalSearch";
 import { Hero } from "@/components/minimaltab/Hero";
 import { QuickAccess } from "@/components/minimaltab/QuickAccess";
 import { Notes } from "@/components/minimaltab/Notes";
+import { Todos } from "@/components/minimaltab/Todos";
 import { CommandPalette } from "@/components/minimaltab/CommandPalette";
 import { Settings } from "@/components/minimaltab/Settings";
 import { WaveBackground } from "@/components/minimaltab/WaveBackground";
@@ -161,61 +162,41 @@ function MinimalTab() {
       </header>
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-        {/* Two-column on desktop: Hero + Search on the left, Notes on the right.
-            Single column on mobile. Focus mode collapses to just Hero + Search. */}
-        <div
-          className={`grid grid-cols-1 gap-6 lg:gap-10 ${
-            focusMode ? "" : "lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]"
-          }`}
+        <motion.section
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mx-auto min-w-0 max-w-3xl"
         >
-          <motion.section
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="min-w-0"
-          >
-            <Hero />
-            <div className="mt-6 sm:mt-8">
-              {hydrated && (
-                <UniversalSearch
-                  defaultEngine={engine}
-                  setDefaultEngine={setEngine}
-                  onRecent={(q) =>
-                    setRecent((prev) => [q, ...prev.filter((x) => x !== q)].slice(0, 8))
-                  }
-                />
-              )}
-            </div>
-            {!focusMode && recent.length > 0 && (
-              <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-1.5">
-                <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Recent</span>
-                {recent.slice(0, 6).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() =>
-                      (document.querySelector('input[aria-label="Universal search"]') as HTMLInputElement | null)?.focus()
-                    }
-                    className="rounded-full border border-border bg-background/60 px-2.5 py-0.5 text-xs text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
+          <Hero />
+          <div className="mt-6 sm:mt-8">
+            {hydrated && (
+              <UniversalSearch
+                defaultEngine={engine}
+                setDefaultEngine={setEngine}
+                onRecent={(q) =>
+                  setRecent((prev) => [q, ...prev.filter((x) => x !== q)].slice(0, 8))
+                }
+              />
             )}
-          </motion.section>
-
-          {!focusMode && (
-            <motion.aside
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.08 }}
-              className="min-w-0 lg:sticky lg:top-20 lg:self-start"
-              aria-label="Notes"
-            >
-              <Notes />
-            </motion.aside>
+          </div>
+          {!focusMode && recent.length > 0 && (
+            <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-1.5">
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Recent</span>
+              {recent.slice(0, 6).map((r) => (
+                <button
+                  key={r}
+                  onClick={() =>
+                    (document.querySelector('input[aria-label="Universal search"]') as HTMLInputElement | null)?.focus()
+                  }
+                  className="rounded-full border border-border bg-background/60 px-2.5 py-0.5 text-xs text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
           )}
-        </div>
+        </motion.section>
 
         {!focusMode && (
           <motion.div
@@ -227,6 +208,19 @@ function MinimalTab() {
             <QuickAccess />
           </motion.div>
         )}
+
+        {!focusMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 sm:mt-14"
+          >
+            <Notes />
+            <Todos />
+          </motion.div>
+        )}
+
 
         {focusMode && (
           <div className="mt-16 text-center">
