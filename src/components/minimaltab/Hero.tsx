@@ -28,7 +28,7 @@ export function Hero() {
     <div className="mx-auto w-full max-w-4xl text-center">
       <h1 className="sr-only">MinimalTab — Productivity Dashboard for your browser</h1>
       <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground sm:text-sm">{date}</p>
-      <p className="mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+      <p className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
         {g}{name ? `, ${name}` : ""}.
       </p>
       <p className="mt-1 font-mono text-4xl font-light tracking-tight text-foreground/90 tabular-nums sm:text-5xl lg:text-6xl">

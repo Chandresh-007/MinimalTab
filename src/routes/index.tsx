@@ -72,6 +72,7 @@ function runThemeTransition(x: number, y: number, apply: () => void) {
 function MinimalTab() {
   const hydrated = useHydrated();
   const [dark, setDark] = useLocalStorage<boolean>("mt.dark", false);
+  const [boss, setBoss] = useLocalStorage<boolean>("mt.boss", false);
   const [name, setName] = useLocalStorage<string>("mt.name", "");
   const [engine, setEngine] = useLocalStorage<string>("mt.engine", "duckduckgo");
   const [recent, setRecent] = useLocalStorage<string[]>("mt.recent", []);
@@ -84,8 +85,11 @@ function MinimalTab() {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    document.documentElement.classList.toggle("dark", !!dark);
-  }, [dark]);
+    const root = document.documentElement;
+    root.classList.toggle("boss", !!boss);
+    // Boss theme is inherently dark; force dark class so ambient bg adapts.
+    root.classList.toggle("dark", !!dark || !!boss);
+  }, [dark, boss]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -257,6 +261,8 @@ function MinimalTab() {
         setDefaultEngine={setEngine}
         dailyFocus={dailyFocus}
         setDailyFocus={setDailyFocus}
+        boss={!!boss}
+        setBoss={setBoss}
       />
       {hydrated && (
         <WelcomeDialog
