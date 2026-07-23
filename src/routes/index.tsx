@@ -77,6 +77,7 @@ function MinimalTab() {
   const [recent, setRecent] = useLocalStorage<string[]>("mt.recent", []);
   
   const [dailyFocus, setDailyFocus] = useLocalStorage<string>("mt.dailyFocus", "");
+  const [onboarded, setOnboarded] = useLocalStorage<boolean>("mt.onboarded", false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
