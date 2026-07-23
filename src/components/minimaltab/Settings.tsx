@@ -13,6 +13,8 @@ export function Settings({
   setDefaultEngine,
   dailyFocus,
   setDailyFocus,
+  boss,
+  setBoss,
 }: {
   open: boolean;
   onClose: () => void;
@@ -22,6 +24,8 @@ export function Settings({
   setDefaultEngine: (v: string) => void;
   dailyFocus: string;
   setDailyFocus: (v: string) => void;
+  boss: boolean;
+  setBoss: (v: boolean) => void;
 }) {
   if (!open) return null;
   return (
