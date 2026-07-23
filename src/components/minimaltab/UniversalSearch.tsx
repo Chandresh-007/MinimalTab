@@ -36,14 +36,14 @@ export function UniversalSearch({
   const active = ENGINES[defaultEngine] ?? ENGINES.duckduckgo;
 
   return (
-    <form onSubmit={submit} className="mx-auto w-full max-w-2xl">
-      <div className="group relative flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 transition-shadow duration-150 focus-within:shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_-8px_rgba(0,0,0,0.08)] focus-within:border-foreground/20">
-        <SearchIcon className="h-4 w-4 text-muted-foreground" aria-hidden />
+    <form onSubmit={submit} className="mx-auto w-full max-w-3xl">
+      <div className="group relative flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-5 transition-shadow duration-150 focus-within:shadow-[0_1px_3px_rgba(0,0,0,0.04),0_10px_30px_-8px_rgba(0,0,0,0.12)] focus-within:border-foreground/20 sm:px-6 sm:py-6">
+        <SearchIcon className="h-5 w-5 text-muted-foreground sm:h-6 sm:w-6" aria-hidden />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search the web, or type a prefix — g, gh, yt, w, r, ai…"
-          className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
+          className="flex-1 bg-transparent text-lg outline-none placeholder:text-muted-foreground sm:text-xl"
           aria-label="Universal search"
           autoFocus
         />
