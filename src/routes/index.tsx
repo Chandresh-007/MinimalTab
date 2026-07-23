@@ -258,6 +258,13 @@ function MinimalTab() {
         dailyFocus={dailyFocus}
         setDailyFocus={setDailyFocus}
       />
+      {hydrated && (
+        <WelcomeDialog
+          open={!onboarded}
+          onSubmit={(n) => { setName(n); setOnboarded(true); }}
+          onSkip={() => setOnboarded(true)}
+        />
+      )}
     </div>
   );
 }
