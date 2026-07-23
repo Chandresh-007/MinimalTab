@@ -27,21 +27,21 @@ export function Hero() {
   return (
     <div className="mx-auto w-full max-w-4xl text-center">
       <h1 className="sr-only">MinimalTab — Productivity Dashboard for your browser</h1>
-      <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground sm:text-base">{date}</p>
-      <p className="mt-4 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+      <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground sm:text-sm">{date}</p>
+      <p className="mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
         {g}{name ? `, ${name}` : ""}.
       </p>
-      <p className="mt-2 font-mono text-6xl font-light tracking-tight text-foreground/90 tabular-nums sm:text-7xl lg:text-8xl">
+      <p className="mt-1 font-mono text-4xl font-light tracking-tight text-foreground/90 tabular-nums sm:text-5xl lg:text-6xl">
         {time}
       </p>
       {dailyFocus ? (
-        <p className="mx-auto mt-6 max-w-xl rounded-full border border-border bg-card/60 px-5 py-2 text-base text-foreground/80 backdrop-blur">
+        <p className="mx-auto mt-5 max-w-xl rounded-full border border-border bg-card/60 px-4 py-1.5 text-sm text-foreground/80 backdrop-blur">
           {dailyFocus}
         </p>
       ) : null}
-      <blockquote className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+      <blockquote className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
         “{quote.text}”
-        <span className="ml-2 block text-sm text-foreground/50 sm:ml-3 sm:inline sm:text-base">— {quote.author}</span>
+        <span className="ml-2 block text-xs text-foreground/50 sm:ml-2 sm:inline sm:text-sm">— {quote.author}</span>
       </blockquote>
     </div>
   );
