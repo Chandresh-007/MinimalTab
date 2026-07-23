@@ -1,4 +1,2 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://bloom-creative-toolkit.lovable.app/sitemap.xml

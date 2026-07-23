@@ -7,10 +7,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -37,9 +36,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -86,8 +82,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "MinimalTab — Your Browser's Productivity OS" },
       { name: "twitter:description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/71efd60b-ccf6-4e01-8858-1f3ed632d165/id-preview-50340deb--4686e49e-68b6-4bce-9e01-d010d7cf2f2d.lovable.app-1784713547760.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/71efd60b-ccf6-4e01-8858-1f3ed632d165/id-preview-50340deb--4686e49e-68b6-4bce-9e01-d010d7cf2f2d.lovable.app-1784713547760.png" },
     ],
     links: [
       {
