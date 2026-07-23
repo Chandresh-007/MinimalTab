@@ -121,7 +121,7 @@ function MinimalTab() {
 
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 w-full items-center gap-2 px-4 sm:px-6 lg:px-8 2xl:px-12">
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground text-background">
               <span className="text-[13px] font-semibold">M</span>
@@ -161,12 +161,12 @@ function MinimalTab() {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto w-full px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12 2xl:px-12">
+      <main className="relative z-10 mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         <motion.section
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mx-auto min-w-0 w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl"
+          className="mx-auto min-w-0 max-w-3xl"
         >
           <Hero />
           <div className="mt-6 sm:mt-8">
@@ -214,7 +214,7 @@ function MinimalTab() {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 sm:mt-14 xl:gap-8"
+            className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 sm:mt-14"
           >
             <Notes />
             <Todos />
