@@ -8,6 +8,7 @@ import { UniversalSearch } from "@/components/minimaltab/UniversalSearch";
 import { Hero } from "@/components/minimaltab/Hero";
 import { QuickAccess } from "@/components/minimaltab/QuickAccess";
 import { Notes } from "@/components/minimaltab/Notes";
+import { Todos } from "@/components/minimaltab/Todos";
 import { CommandPalette } from "@/components/minimaltab/CommandPalette";
 import { Settings } from "@/components/minimaltab/Settings";
 import { WaveBackground } from "@/components/minimaltab/WaveBackground";
