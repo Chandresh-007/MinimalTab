@@ -121,7 +121,7 @@ function MinimalTab() {
 
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-14 w-full items-center gap-2 px-4 sm:px-6 lg:px-8 2xl:px-12">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground text-background">
               <span className="text-[13px] font-semibold">M</span>
