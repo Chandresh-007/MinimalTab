@@ -42,7 +42,7 @@ export function UniversalSearch({
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search the web, or type a prefix — g, gh, yt, w, r, ai…"
+          placeholder="Search the web"
           className="flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-lg"
           aria-label="Universal search"
           autoFocus
