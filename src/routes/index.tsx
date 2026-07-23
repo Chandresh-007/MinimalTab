@@ -161,12 +161,12 @@ function MinimalTab() {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+      <main className="relative z-10 mx-auto w-full px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12 2xl:px-12">
         <motion.section
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mx-auto min-w-0 max-w-3xl"
+          className="mx-auto min-w-0 w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl"
         >
           <Hero />
           <div className="mt-6 sm:mt-8">
