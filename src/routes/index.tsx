@@ -214,7 +214,7 @@ function MinimalTab() {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 sm:mt-14"
+            className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 sm:mt-14 xl:gap-8"
           >
             <Notes />
             <Todos />
