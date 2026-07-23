@@ -185,59 +185,7 @@ export function Notes() {
                 className="mt-2 h-32 w-full resize-none bg-transparent text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
               />
 
-              {/* To-do list */}
-              <div className="mt-2 border-t border-border pt-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">To-do</span>
-                  {active.todos && active.todos.length > 0 && (
-                    <span className="text-[10px] text-muted-foreground">
-                      {active.todos.filter((t) => t.done).length}/{active.todos.length}
-                    </span>
-                  )}
-                </div>
-                <ul className="space-y-1">
-                  {(active.todos ?? []).map((t) => (
-                    <li key={t.id} className="group flex min-w-0 items-center gap-2">
-                      <button
-                        onClick={() => toggleTodo(t.id)}
-                        aria-label={t.done ? "Mark as not done" : "Mark as done"}
-                        className="shrink-0 text-muted-foreground hover:text-foreground"
-                      >
-                        {t.done ? <CheckSquare className="h-3.5 w-3.5" /> : <Square className="h-3.5 w-3.5" />}
-                      </button>
-                      <span
-                        className={`min-w-0 flex-1 truncate text-sm ${
-                          t.done ? "text-muted-foreground line-through" : "text-foreground"
-                        }`}
-                      >
-                        {t.text}
-                      </span>
-                      <button
-                        onClick={() => removeTodo(t.id)}
-                        aria-label="Remove todo"
-                        className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 hover:bg-muted hover:text-foreground group-hover:opacity-100 focus-visible:opacity-100"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-2 flex items-center gap-2">
-                  <Plus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <input
-                    value={newTodo}
-                    onChange={(e) => setNewTodo(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addTodo();
-                      }
-                    }}
-                    placeholder="Add a task…"
-                    className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-                  />
-                </div>
-              </div>
+
 
               <p className="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">
                 Auto-saved · {new Date(active.updated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
