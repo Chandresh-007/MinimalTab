@@ -80,8 +80,8 @@ export function Settings({
             <p className="text-xs text-muted-foreground">Use the sun / moon toggle in the header to switch between light and dark mode.</p>
             <label className="mt-3 flex items-center justify-between rounded-lg border border-border px-3 py-2">
               <span>
-                <span className="block text-sm font-medium">Boss mode</span>
-                <span className="block text-[11px] text-muted-foreground">Secret theme · black + Prussian blue + orange</span>
+                <span className="block text-sm font-medium">Secret theme</span>
+                <span className="block text-[11px] text-muted-foreground">Hidden palette · black + Prussian blue + orange</span>
               </span>
               <button
                 type="button"
