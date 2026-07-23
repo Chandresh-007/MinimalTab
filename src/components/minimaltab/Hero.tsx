@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useLocalStorage } from "@/lib/minimaltab/storage";
 import { quoteOfDay } from "@/lib/minimaltab/quotes";
 
