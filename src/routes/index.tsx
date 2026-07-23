@@ -261,6 +261,8 @@ function MinimalTab() {
         setDefaultEngine={setEngine}
         dailyFocus={dailyFocus}
         setDailyFocus={setDailyFocus}
+        boss={!!boss}
+        setBoss={setBoss}
       />
       {hydrated && (
         <WelcomeDialog
