@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { StickyNote, Pin, PinOff, Plus, Trash2, CheckSquare, Square, X } from "lucide-react";
+import { StickyNote, Pin, PinOff, Plus, Trash2 } from "lucide-react";
+
 import { useLocalStorage } from "@/lib/minimaltab/storage";
 
 type Todo = { id: string; text: string; done: boolean };
