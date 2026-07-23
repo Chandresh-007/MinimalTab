@@ -16,7 +16,6 @@ type Note = {
 export function Notes() {
   const [notes, setNotes] = useLocalStorage<Note[]>("mt.notes", []);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [newTodo, setNewTodo] = useState("");
   const listRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const titleRef = useRef<HTMLInputElement | null>(null);
   const bodyRef = useRef<HTMLTextAreaElement | null>(null);
