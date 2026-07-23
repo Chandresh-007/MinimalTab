@@ -15,6 +15,7 @@ import { WaveBackground } from "@/components/minimaltab/WaveBackground";
 import { ThemeToggle } from "@/components/minimaltab/ThemeToggle";
 import { WeatherWidget } from "@/components/minimaltab/WeatherWidget";
 import { BuyMeCoffee } from "@/components/minimaltab/BuyMeCoffee";
+import { WelcomeDialog } from "@/components/minimaltab/WelcomeDialog";
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
 
 export const Route = createFileRoute("/")({
@@ -76,6 +77,7 @@ function MinimalTab() {
   const [recent, setRecent] = useLocalStorage<string[]>("mt.recent", []);
   
   const [dailyFocus, setDailyFocus] = useLocalStorage<string>("mt.dailyFocus", "");
+  const [onboarded, setOnboarded] = useLocalStorage<boolean>("mt.onboarded", false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
@@ -256,6 +258,13 @@ function MinimalTab() {
         dailyFocus={dailyFocus}
         setDailyFocus={setDailyFocus}
       />
+      {hydrated && (
+        <WelcomeDialog
+          open={!onboarded}
+          onSubmit={(n) => { setName(n); setOnboarded(true); }}
+          onSkip={() => setOnboarded(true)}
+        />
+      )}
     </div>
   );
 }
