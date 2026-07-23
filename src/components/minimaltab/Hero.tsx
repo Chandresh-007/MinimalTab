@@ -40,10 +40,28 @@ export function Hero() {
           {dailyFocus}
         </p>
       ) : null}
-      <blockquote className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-        “{quote.text}”
-        <span className="ml-2 block text-xs text-foreground/50 sm:ml-2 sm:inline sm:text-sm">— {quote.author}</span>
-      </blockquote>
+      <AnimatePresence mode="wait">
+        <motion.blockquote
+          key={quote.text}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto mt-8 max-w-2xl px-4 text-balance font-serif text-base italic leading-relaxed text-foreground/75 sm:text-lg lg:text-xl"
+        >
+          <span className="mr-1 select-none text-2xl leading-none text-foreground/30">“</span>
+          {quote.text}
+          <span className="ml-1 select-none text-2xl leading-none text-foreground/30">”</span>
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25, duration: 0.4 }}
+            className="mt-2 block text-xs font-sans not-italic uppercase tracking-[0.2em] text-muted-foreground sm:text-sm"
+          >
+            — {quote.author}
+          </motion.span>
+        </motion.blockquote>
+      </AnimatePresence>
     </div>
   );
 }
