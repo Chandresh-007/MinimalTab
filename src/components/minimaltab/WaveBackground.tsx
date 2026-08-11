@@ -19,8 +19,9 @@ export function WaveBackground() {
   }, []);
 
   const palette = dark
-    ? { horizonColor: "#121212", waveColor: "#3B3B57", crestColor: "#E0E0E0", brightness: 1, opacity: 0.9 }
-    : { horizonColor: "#f5ebe0", waveColor: "#d6ccc2", crestColor: "#ffffff", brightness: 1.02, opacity: 0.85 };
+    ? { horizonColor: "#121212", waveColor: "#5227FF", crestColor: "#FF9FFC", brightness: 0.85, opacity: 0.7 }
+    : { horizonColor: "#f5ebe0", waveColor: "#d5bdaf", crestColor: "#ffffff", brightness: 1.05, opacity: 0.95 };
+
 
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
