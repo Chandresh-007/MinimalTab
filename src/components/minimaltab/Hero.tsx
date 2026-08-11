@@ -15,7 +15,9 @@ export function Hero() {
   const [name] = useLocalStorage<string>("mt.name", "");
   const [dailyFocus] = useLocalStorage<string>("mt.dailyFocus", "");
   const [now, setNow] = useState<Date>(() => new Date());
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    setMounted(true);
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
@@ -28,7 +30,8 @@ export function Hero() {
   return (
     <div className="mx-auto w-full max-w-4xl text-center">
       <h1 className="sr-only">MinimalTab — Productivity Dashboard for your browser</h1>
-      <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground sm:text-sm">{date}</p>
+      <p suppressHydrationWarning className="text-xs uppercase tracking-[0.22em] text-muted-foreground sm:text-sm">{mounted ? date : "\u00a0"}</p>
+
       <p className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
         {g}{name ? `, ${name}` : ""}
       </p>
