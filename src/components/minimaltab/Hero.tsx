@@ -32,11 +32,11 @@ export function Hero() {
       <h1 className="sr-only">MinimalTab — Productivity Dashboard for your browser</h1>
       <p suppressHydrationWarning className="text-xs uppercase tracking-[0.22em] text-muted-foreground sm:text-sm">{mounted ? date : "\u00a0"}</p>
 
-      <p className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-        {g}{name ? `, ${name}` : ""}
+      <p suppressHydrationWarning className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+        {mounted ? `${g}${name ? `, ${name}` : ""}` : "\u00a0"}
       </p>
-      <p className="mt-1 font-mono text-4xl font-light tracking-tight text-foreground/90 tabular-nums sm:text-5xl lg:text-6xl">
-        {time}
+      <p suppressHydrationWarning className="mt-1 font-mono text-4xl font-light tracking-tight text-foreground/90 tabular-nums sm:text-5xl lg:text-6xl">
+        {mounted ? time : "\u00a0"}
       </p>
       {dailyFocus ? (
         <p className="mx-auto mt-5 max-w-xl rounded-full border border-border bg-card/60 px-4 py-1.5 text-sm text-foreground/80 backdrop-blur">
