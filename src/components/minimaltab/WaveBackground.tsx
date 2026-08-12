@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-import Silk from "./Silk";
+import Aurora from "./Aurora";
 
 /**
- * Full-viewport ambient Silk background with separate
+ * Full-viewport ambient Aurora background with separate
  * light-mode and dark-mode palettes.
  */
 export function WaveBackground() {
@@ -18,20 +18,15 @@ export function WaveBackground() {
     return () => obs.disconnect();
   }, []);
 
-  const palette = dark
-    ? { color: "#3a3550", opacity: 0.75 }
-    : { color: "#d5bdaf", opacity: 0.85 };
+  const palette: { colorStops: [string, string, string]; blend: number; opacity: number } = dark
+    ? { colorStops: ["#3A29FF", "#B497CF", "#5227FF"], blend: 0.5, opacity: 0.7 }
+    : { colorStops: ["#d5bdaf", "#e3d5ca", "#d6ccc2"], blend: 0.6, opacity: 0.9 };
 
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      <Silk
-        speed={7.1}
-        scale={1.2}
-        color={palette.color}
-        noiseIntensity={0.3}
-        rotation={0}
-        opacity={palette.opacity}
-      />
+      <div className="absolute inset-0 rotate-180" style={{ opacity: palette.opacity }}>
+        <Aurora colorStops={palette.colorStops} blend={palette.blend} amplitude={1.0} speed={0.5} />
+      </div>
     </div>
   );
 }
