@@ -17,6 +17,7 @@ import { WeatherWidget } from "@/components/minimaltab/WeatherWidget";
 import { BuyMeCoffee } from "@/components/minimaltab/BuyMeCoffee";
 import { WelcomeDialog } from "@/components/minimaltab/WelcomeDialog";
 import { Intro } from "@/components/minimaltab/Intro";
+import { ClickSpark } from "@/components/minimaltab/ClickSpark";
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
 
 export const Route = createFileRoute("/")({
@@ -126,6 +127,13 @@ function MinimalTab() {
     <div className="relative min-h-dvh bg-background text-foreground">
       <Intro />
       <WaveBackground />
+      <ClickSpark
+        sparkColor={dark || boss ? "#ffffff" : "#212529"}
+        sparkSize={10}
+        sparkRadius={18}
+        sparkCount={8}
+        duration={450}
+      >
 
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
@@ -273,6 +281,7 @@ function MinimalTab() {
           onSkip={() => setOnboarded(true)}
         />
       )}
+      </ClickSpark>
     </div>
   );
 }
