@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-import Aurora from "./Aurora";
+import Topography from "./Topography";
 
 /**
- * Full-viewport ambient Aurora background with separate
+ * Full-viewport ambient topographic contour background with separate
  * light-mode and dark-mode palettes.
  */
 export function WaveBackground() {
@@ -18,15 +18,45 @@ export function WaveBackground() {
     return () => obs.disconnect();
   }, []);
 
-  const palette: { colorStops: [string, string, string]; blend: number; opacity: number } = dark
-    ? { colorStops: ["#3A29FF", "#B497CF", "#5227FF"], blend: 0.5, opacity: 0.7 }
-    : { colorStops: ["#d5bdaf", "#e3d5ca", "#d6ccc2"], blend: 0.6, opacity: 0.9 };
+  const palette = dark
+    ? {
+        lowColor: "#3A29FF",
+        midColor: "#B497CF",
+        highColor: "#FFFFFF",
+        opacity: 0.55,
+        brightness: 1.0,
+      }
+    : {
+        lowColor: "#d5bdaf",
+        midColor: "#d6ccc2",
+        highColor: "#8a7968",
+        opacity: 0.75,
+        brightness: 0.95,
+      };
 
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      <div className="absolute inset-0 rotate-180" style={{ opacity: palette.opacity }}>
-        <Aurora colorStops={palette.colorStops} blend={palette.blend} amplitude={1.0} speed={0.5} />
-      </div>
+      <Topography
+        lowColor={palette.lowColor}
+        midColor={palette.midColor}
+        highColor={palette.highColor}
+        speed={0.35}
+        morphAmount={3.0}
+        morphSpeed={0.05}
+        bands={2.0}
+        thickness={0.01}
+        scale={1.0}
+        glow={0.5}
+        colorMode="elevation"
+        contrast={3.0}
+        brightness={palette.brightness}
+        opacity={palette.opacity}
+        grain
+        grainIntensity={0.04}
+        mouseInteraction
+        mouseRadius={0.3}
+        mouseStrength={0.4}
+      />
     </div>
   );
 }
