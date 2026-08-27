@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { StickyNote, Pin, PinOff, Plus, Trash2 } from "lucide-react";
 
 import { useLocalStorage } from "@/lib/minimaltab/storage";
+import { StarBorder } from "@/components/minimaltab/StarBorder";
 
 type Todo = { id: string; text: string; done: boolean };
 type Note = {
@@ -96,9 +97,9 @@ export function Notes() {
         <h2 id="notes-heading" className="flex items-center gap-2 text-sm font-medium text-foreground">
           <StickyNote className="h-4 w-4 text-muted-foreground" /> Notes
         </h2>
-        <button onClick={create} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+        <StarBorder as="button" compact type="button" onClick={create} data-spark>
           <Plus className="h-3 w-3" /> New
-        </button>
+        </StarBorder>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-[10rem_minmax(0,1fr)]" style={{ minHeight: "16rem" }}>
         <ul

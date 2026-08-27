@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CheckSquare, Square, Plus, X, ListTodo, Trash2 } from "lucide-react";
 import { useLocalStorage } from "@/lib/minimaltab/storage";
+import { StarBorder } from "@/components/minimaltab/StarBorder";
 
 type Todo = { id: string; text: string; done: boolean; created: number };
 
@@ -35,12 +36,9 @@ export function Todos() {
           )}
         </h2>
         {doneCount > 0 && (
-          <button
-            onClick={clearDone}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-          >
+          <StarBorder as="button" compact type="button" onClick={clearDone} data-spark>
             <Trash2 className="h-3 w-3" /> Clear done
-          </button>
+          </StarBorder>
         )}
       </div>
       <div className="p-3" style={{ minHeight: "16rem" }}>
