@@ -281,6 +281,7 @@ function MinimalTab() {
           onSkip={() => setOnboarded(true)}
         />
       )}
+      </ClickSpark>
     </div>
   );
 }
