@@ -127,6 +127,13 @@ function MinimalTab() {
     <div className="relative min-h-dvh bg-background text-foreground">
       <Intro />
       <WaveBackground />
+      <ClickSpark
+        sparkColor={dark || boss ? "#ffffff" : "#212529"}
+        sparkSize={10}
+        sparkRadius={18}
+        sparkCount={8}
+        duration={450}
+      >
 
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
