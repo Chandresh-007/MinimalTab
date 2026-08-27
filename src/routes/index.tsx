@@ -146,7 +146,7 @@ function MinimalTab() {
       {hydrated && (
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-[1] overflow-hidden mix-blend-screen dark:opacity-80"
+          className="pointer-events-none fixed inset-0 z-[1] overflow-hidden opacity-50 dark:opacity-80 dark:mix-blend-screen"
         >
           <PixelSnow
             color={dark || boss ? "#ffffff" : "#6c5f55"}
