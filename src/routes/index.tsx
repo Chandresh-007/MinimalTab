@@ -18,6 +18,8 @@ import { BuyMeCoffee } from "@/components/minimaltab/BuyMeCoffee";
 import { WelcomeDialog } from "@/components/minimaltab/WelcomeDialog";
 import { Intro } from "@/components/minimaltab/Intro";
 import { ClickSpark } from "@/components/minimaltab/ClickSpark";
+import { StarBorder } from "@/components/minimaltab/StarBorder";
+
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
 
 export const Route = createFileRoute("/")({
@@ -144,15 +146,21 @@ function MinimalTab() {
             </span>
             <span className="hidden text-sm font-semibold tracking-tight sm:inline">MinimalTab</span>
           </div>
-          <button
+          <StarBorder
+            as="button"
             onClick={() => setPaletteOpen(true)}
-            className="ml-2 flex flex-1 items-center gap-2 rounded-lg border border-border bg-card/60 px-3 py-1.5 text-left text-xs text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+            color={dark || boss ? "#ffffff" : "#212529"}
+            speed="7s"
+            thickness={2}
+            className="ml-2 flex-1"
             aria-label="Open command palette"
+            data-spark
           >
             <Search className="h-3.5 w-3.5 shrink-0" />
-            <span className="flex-1 truncate">Search anything</span>
+            <span className="flex-1 truncate text-xs">Search anything</span>
             <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[10px] sm:inline">⌘K</kbd>
-          </button>
+          </StarBorder>
+
           <div className="flex items-center gap-1">
             {hydrated && <WeatherWidget />}
             <BuyMeCoffee />
