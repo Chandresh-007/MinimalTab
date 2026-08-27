@@ -3,6 +3,7 @@ import { Plus, X, ExternalLink, GripVertical, Upload, Clock } from "lucide-react
 import { motion } from "framer-motion";
 import { DEFAULT_LINKS, ICONS, type QuickLink } from "@/lib/minimaltab/links";
 import { useLocalStorage } from "@/lib/minimaltab/storage";
+import { StarBorder } from "@/components/minimaltab/StarBorder";
 
 const TOP_SITES_KEY = "mt.topsites";
 
@@ -224,18 +225,12 @@ export function QuickAccess() {
           <span className="hidden text-[10px] uppercase tracking-wider text-muted-foreground sm:inline">
             Drag handle · Alt + ← →
           </span>
-          <button
-            onClick={() => setImportOpen((v) => !v)}
-            className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <StarBorder as="button" compact type="button" onClick={() => setImportOpen((v) => !v)} data-spark>
             <Upload className="h-3 w-3" /> Import
-          </button>
-          <button
-            onClick={() => setAdding((v) => !v)}
-            className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-          >
+          </StarBorder>
+          <StarBorder as="button" compact type="button" onClick={() => setAdding((v) => !v)} data-spark>
             <Plus className="h-3 w-3" /> Add
-          </button>
+          </StarBorder>
         </div>
       </div>
 
@@ -293,12 +288,9 @@ export function QuickAccess() {
             placeholder="https://…"
             className="min-w-[10rem] flex-[2] bg-transparent px-2 py-1 text-sm outline-none placeholder:text-muted-foreground"
           />
-          <button
-            onClick={add}
-            className="rounded-md border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted"
-          >
+          <StarBorder as="button" compact type="button" onClick={add} data-spark>
             Save
-          </button>
+          </StarBorder>
         </div>
       )}
 

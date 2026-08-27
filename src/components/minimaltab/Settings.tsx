@@ -15,6 +15,8 @@ export function Settings({
   setDailyFocus,
   boss,
   setBoss,
+  sparkDebug,
+  setSparkDebug,
 }: {
   open: boolean;
   onClose: () => void;
@@ -26,6 +28,8 @@ export function Settings({
   setDailyFocus: (v: string) => void;
   boss: boolean;
   setBoss: (v: boolean) => void;
+  sparkDebug: boolean;
+  setSparkDebug: (v: boolean) => void;
 }) {
   if (!open) return null;
   return (
@@ -91,6 +95,25 @@ export function Settings({
                 className={`relative h-5 w-9 rounded-full border border-border transition-colors ${boss ? "bg-primary" : "bg-muted"}`}
               >
                 <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-background transition-transform ${boss ? "translate-x-4" : "translate-x-0.5"}`} />
+              </button>
+            </label>
+          </section>
+
+          <section>
+            <h3 className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Effects</h3>
+            <label className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
+              <span>
+                <span className="block text-sm font-medium">Spark debug overlay</span>
+                <span className="block text-[11px] text-muted-foreground">Outline spark triggers and show render cost</span>
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={sparkDebug}
+                onClick={() => setSparkDebug(!sparkDebug)}
+                className={`relative h-5 w-9 rounded-full border border-border transition-colors ${sparkDebug ? "bg-primary" : "bg-muted"}`}
+              >
+                <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-background transition-transform ${sparkDebug ? "translate-x-4" : "translate-x-0.5"}`} />
               </button>
             </label>
           </section>

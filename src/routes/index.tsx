@@ -20,7 +20,19 @@ import { Intro } from "@/components/minimaltab/Intro";
 import { ClickSpark } from "@/components/minimaltab/ClickSpark";
 import { StarBorder } from "@/components/minimaltab/StarBorder";
 
+import type { ClickSparkConfig } from "@/components/minimaltab/ClickSpark";
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
+
+// Declarative spark targets — add entries here, never inside ClickSpark.
+const SPARK_CONFIG: ClickSparkConfig = {
+  triggers: [
+    { selector: "[data-spark-strong]", intensity: 1.6 },
+    { selector: "[data-spark]", intensity: 1.25 },
+    { selector: "button, [role='button'], input[type='submit']", intensity: 1 },
+    { selector: "a[href]", intensity: 0.8, throttleMs: 200 },
+  ],
+  fallback: "none",
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,6 +98,7 @@ function MinimalTab() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [sparkDebug, setSparkDebug] = useLocalStorage<boolean>("mt.sparkDebug", false);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -135,6 +148,8 @@ function MinimalTab() {
         sparkRadius={18}
         sparkCount={8}
         duration={450}
+        config={SPARK_CONFIG}
+        debug={!!sparkDebug}
       >
 
       {/* Header */}
@@ -154,6 +169,7 @@ function MinimalTab() {
             thickness={2}
             className="ml-2 flex-1"
             aria-label="Open command palette"
+            data-spark-strong
             data-spark
           >
             <Search className="h-3.5 w-3.5 shrink-0" />
@@ -281,6 +297,8 @@ function MinimalTab() {
         setDailyFocus={setDailyFocus}
         boss={!!boss}
         setBoss={setBoss}
+        sparkDebug={!!sparkDebug}
+        setSparkDebug={setSparkDebug}
       />
       {hydrated && (
         <WelcomeDialog
