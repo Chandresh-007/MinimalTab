@@ -5,6 +5,27 @@ interface Spark {
   y: number;
   angle: number;
   startTime: number;
+  color: string;
+  size: number;
+  radius: number;
+}
+
+/** Declarative trigger definition — add new spark targets without touching logic. */
+export interface SparkTrigger {
+  /** CSS selector matched with `closest()` against the event target. */
+  selector: string;
+  /** Relative intensity (1 = base). Scales spark count, size and radius. */
+  intensity?: number;
+  /** Optional color override for this trigger. */
+  color?: string;
+  /** Optional per-trigger throttle in ms. */
+  throttleMs?: number;
+}
+
+export interface ClickSparkConfig {
+  triggers: SparkTrigger[];
+  /** Fallback when no trigger matches: "none" (default) ignores the event. */
+  fallback?: "none" | "base";
 }
 
 interface ClickSparkProps {
@@ -15,12 +36,23 @@ interface ClickSparkProps {
   duration?: number;
   easing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
   extraScale?: number;
-  /** Only pointer events landing inside an element matching this selector spark. */
-  triggerSelector?: string;
+  /** Declarative trigger config. Falls back to a sensible default set. */
+  config?: ClickSparkConfig;
   /** Minimum ms between two spark bursts. */
   throttleMs?: number;
+  /** Visualize trigger hit points and per-frame render cost. */
+  debug?: boolean;
   children: React.ReactNode;
 }
+
+const DEFAULT_CONFIG: ClickSparkConfig = {
+  triggers: [
+    { selector: "[data-spark]", intensity: 1.25 },
+    { selector: "button, [role='button'], input[type='submit']", intensity: 1 },
+    { selector: "a[href]", intensity: 0.8 },
+  ],
+  fallback: "none",
+};
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -42,27 +74,37 @@ export function ClickSpark({
   duration = 400,
   easing = "ease-out",
   extraScale = 1.0,
-  triggerSelector = "[data-spark], button, a, [role='button'], input[type='submit']",
+  config = DEFAULT_CONFIG,
   throttleMs = 120,
+  debug = false,
   children,
 }: ClickSparkProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sparksRef = useRef<Spark[]>([]);
   const rafRef = useRef<number | null>(null);
   const lastSparkRef = useRef(0);
+  const frameCostRef = useRef(0);
   const [mounted, setMounted] = useState(false);
+  const [stats, setStats] = useState({ sparks: 0, ms: 0, bursts: 0 });
   const reduced = usePrefersReducedMotion();
-
-  // Low-end devices get fewer sparks.
-  const lowPower =
-    mounted &&
-    ((navigator as Navigator & { hardwareConcurrency?: number }).hardwareConcurrency ?? 8) <= 4;
-  const effectiveCount = Math.max(4, lowPower ? Math.round(sparkCount / 2) : sparkCount);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Adaptive budget: fewer cores / less memory / coarse pointers get lighter bursts.
+  const [tier, setTier] = useState(1);
+  useEffect(() => {
+    const nav = navigator as Navigator & { hardwareConcurrency?: number; deviceMemory?: number };
+    const cores = nav.hardwareConcurrency ?? 8;
+    const mem = nav.deviceMemory ?? 8;
+    let t = 1;
+    if (cores <= 4 || mem <= 4) t = 0.6;
+    if (cores <= 2 || mem <= 2) t = 0.4;
+    setTier(t);
+  }, []);
+
+  const lowPower = tier < 1;
   const active = mounted && !reduced;
 
   useEffect(() => {
@@ -126,29 +168,47 @@ export function ClickSpark({
     if (!canvas || !ctx) return;
 
     const draw = (timestamp: number) => {
+      const t0 = debug ? performance.now() : 0;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.strokeStyle = sparkColor;
       ctx.lineWidth = 2;
       ctx.lineCap = "round";
-      ctx.beginPath();
 
+      // Group by color so each color is one batched path.
+      const byColor = new Map<string, Spark[]>();
       sparksRef.current = sparksRef.current.filter((spark) => {
-        const elapsed = timestamp - spark.startTime;
-        if (elapsed >= duration) return false;
-
-        const eased = easeFunc(elapsed / duration);
-        const distance = eased * sparkRadius * extraScale;
-        const lineLength = sparkSize * (1 - eased);
-        const cos = Math.cos(spark.angle);
-        const sin = Math.sin(spark.angle);
-
-        ctx.moveTo(spark.x + distance * cos, spark.y + distance * sin);
-        ctx.lineTo(spark.x + (distance + lineLength) * cos, spark.y + (distance + lineLength) * sin);
+        if (timestamp - spark.startTime >= duration) return false;
+        const bucket = byColor.get(spark.color);
+        if (bucket) bucket.push(spark);
+        else byColor.set(spark.color, [spark]);
         return true;
       });
 
-      ctx.stroke();
+      byColor.forEach((list, color) => {
+        ctx.strokeStyle = color;
+        ctx.beginPath();
+        for (const spark of list) {
+          const eased = easeFunc((timestamp - spark.startTime) / duration);
+          const distance = eased * spark.radius * extraScale;
+          const lineLength = spark.size * (1 - eased);
+          const cos = Math.cos(spark.angle);
+          const sin = Math.sin(spark.angle);
+          ctx.moveTo(spark.x + distance * cos, spark.y + distance * sin);
+          ctx.lineTo(
+            spark.x + (distance + lineLength) * cos,
+            spark.y + (distance + lineLength) * sin,
+          );
+        }
+        ctx.stroke();
+      });
+
+      if (debug) {
+        frameCostRef.current = performance.now() - t0;
+        setStats((s) => ({
+          sparks: sparksRef.current.length,
+          ms: Math.round(frameCostRef.current * 100) / 100,
+          bursts: s.bursts,
+        }));
+      }
 
       if (sparksRef.current.length > 0) {
         rafRef.current = requestAnimationFrame(draw);
@@ -158,7 +218,7 @@ export function ClickSpark({
     };
 
     rafRef.current = requestAnimationFrame(draw);
-  }, [duration, easeFunc, extraScale, sparkColor, sparkRadius, sparkSize]);
+  }, [debug, duration, easeFunc, extraScale]);
 
   useEffect(() => {
     return () => {
@@ -167,35 +227,81 @@ export function ClickSpark({
     };
   }, []);
 
-  // Pointer events cover mouse, pen and touch with the same coordinates and
-  // without blocking scrolling (passive listener, no preventDefault).
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!active) return;
-      const target = e.target as HTMLElement | null;
-      if (triggerSelector && !target?.closest(triggerSelector)) return;
+  const matchTrigger = useCallback(
+    (target: HTMLElement | null): SparkTrigger | null => {
+      if (!target) return config.fallback === "base" ? { selector: "*" } : null;
+      for (const trigger of config.triggers) {
+        if (target.closest(trigger.selector)) return trigger;
+      }
+      return config.fallback === "base" ? { selector: "*" } : null;
+    },
+    [config],
+  );
 
+  const burst = useCallback(
+    (x: number, y: number, trigger: SparkTrigger) => {
       const now = performance.now();
-      if (now - lastSparkRef.current < throttleMs) return;
+      const gate = trigger.throttleMs ?? throttleMs;
+      if (now - lastSparkRef.current < gate) return;
       lastSparkRef.current = now;
 
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const intensity = (trigger.intensity ?? 1) * tier;
+      const count = Math.max(4, Math.round(sparkCount * intensity));
+      const color = trigger.color ?? sparkColor;
+      const size = sparkSize * Math.max(0.6, intensity);
+      const radius = sparkRadius * Math.max(0.6, intensity);
 
-      for (let i = 0; i < effectiveCount; i++) {
+      for (let i = 0; i < count; i++) {
         sparksRef.current.push({
           x,
           y,
-          angle: (2 * Math.PI * i) / effectiveCount,
+          angle: (2 * Math.PI * i) / count,
           startTime: now,
+          color,
+          size,
+          radius,
         });
       }
+      if (debug) setStats((s) => ({ ...s, bursts: s.bursts + 1 }));
       ensureLoop();
     },
-    [active, effectiveCount, ensureLoop, throttleMs, triggerSelector],
+    [debug, ensureLoop, sparkColor, sparkCount, sparkRadius, sparkSize, throttleMs, tier],
+  );
+
+  // Pointer events cover mouse, pen and touch with the same coordinates and
+  // without blocking scrolling (no preventDefault).
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!active) return;
+      const trigger = matchTrigger(e.target as HTMLElement | null);
+      if (!trigger) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      burst(e.clientX - rect.left, e.clientY - rect.top, trigger);
+    },
+    [active, burst, matchTrigger],
+  );
+
+  // Keyboard activation: only Enter / Space on a focused trigger, centred on it.
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!active) return;
+      if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+      if (e.repeat) return;
+      const el = e.target as HTMLElement | null;
+      if (!el) return;
+      // Ignore typing in fields (Enter in a search input is handled by submit buttons).
+      if (el.tagName === "TEXTAREA" || (el.tagName === "INPUT" && el.getAttribute("type") !== "submit")) return;
+      const trigger = matchTrigger(el);
+      if (!trigger) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const box = el.getBoundingClientRect();
+      burst(box.left + box.width / 2 - rect.left, box.top + box.height / 2 - rect.top, trigger);
+    },
+    [active, burst, matchTrigger],
   );
 
   if (mounted && reduced) {
@@ -206,6 +312,8 @@ export function ClickSpark({
     <div
       style={{ position: "relative", width: "100%", minHeight: "100%", touchAction: "manipulation" }}
       onPointerDown={handlePointerDown}
+      onKeyDown={handleKeyDown}
+      data-spark-debug={debug ? "on" : undefined}
     >
       {active && (
         <canvas
@@ -224,6 +332,11 @@ export function ClickSpark({
         />
       )}
       {children}
+      {active && debug && (
+        <div className="pointer-events-none fixed bottom-3 left-3 z-50 rounded-md border border-border bg-card/90 px-2 py-1 font-mono text-[10px] text-muted-foreground backdrop-blur">
+          sparks {stats.sparks} · {stats.ms}ms/frame · bursts {stats.bursts} · tier {tier}
+        </div>
+      )}
     </div>
   );
 }
