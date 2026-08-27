@@ -20,11 +20,11 @@ export function WaveBackground() {
 
   const palette = dark
     ? {
-        lowColor: "#6b6b6b",
-        midColor: "#9a9a9a",
-        highColor: "#c8c8c8",
-        opacity: 0.45,
-        brightness: 0.85,
+        lowColor: "#3A29FF",
+        midColor: "#B497CF",
+        highColor: "#FFFFFF",
+        opacity: 0.55,
+        brightness: 1.0,
       }
     : {
         lowColor: "#d5bdaf",
