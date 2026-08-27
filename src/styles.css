@@ -288,6 +288,34 @@
   color: var(--color-foreground);
 }
 
+.star-border-container.compact .star-border-inner {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  gap: 0.3rem;
+  width: auto;
+}
+
+.star-border-container:focus {
+  outline: none;
+}
+
+.star-border-container:focus-visible .star-border-inner {
+  color: var(--color-foreground);
+  border-color: var(--color-foreground);
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-foreground);
+}
+
+/* Debug overlay: highlight every element that can emit sparks. */
+[data-spark-debug="on"] [data-spark],
+[data-spark-debug="on"] button,
+[data-spark-debug="on"] [role="button"],
+[data-spark-debug="on"] a[href] {
+  outline: 1px dashed color-mix(in oklab, var(--color-foreground) 45%, transparent);
+  outline-offset: 2px;
+}
+
+
 @media (prefers-reduced-motion: reduce) {
   .border-gradient-bottom,
   .border-gradient-top {
