@@ -204,6 +204,22 @@
   }
 }
 
+/* StrokeText intro wordmark */
+.stroke-text {
+  display: block;
+  width: 100%;
+  line-height: 0;
+}
+.stroke-text__svg {
+  display: block;
+  width: 100%;
+  height: var(--stroke-text-height, 160px);
+}
+.stroke-text__stroke,
+.stroke-text__fill {
+  user-select: none;
+}
+
 /* Theme change reveal — View Transitions API.
    The new theme paints underneath and is revealed by an expanding circle
    from the click point, so the page never flashes solid white/black. */

@@ -16,6 +16,7 @@ import { ThemeToggle } from "@/components/minimaltab/ThemeToggle";
 import { WeatherWidget } from "@/components/minimaltab/WeatherWidget";
 import { BuyMeCoffee } from "@/components/minimaltab/BuyMeCoffee";
 import { WelcomeDialog } from "@/components/minimaltab/WelcomeDialog";
+import { Intro } from "@/components/minimaltab/Intro";
 import { useHydrated, useLocalStorage } from "@/lib/minimaltab/storage";
 
 export const Route = createFileRoute("/")({
@@ -123,6 +124,7 @@ function MinimalTab() {
 
   return (
     <div className="relative min-h-dvh bg-background text-foreground">
+      <Intro />
       <WaveBackground />
 
       {/* Header */}
