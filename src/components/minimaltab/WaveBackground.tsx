@@ -13,8 +13,8 @@ export function WaveBackground({ dark, boss }: WaveBackgroundProps) {
   const palette = boss
     ? { horizonColor: "#000000", waveColor: "#14213d", crestColor: "#fca311" }
     : dark
-      ? { horizonColor: "#121212", waveColor: "#2a2a2a", crestColor: "#888888" }
-      : { horizonColor: "#edede9", waveColor: "#d5bdaf", crestColor: "#f5ebe0" };
+      ? { horizonColor: "#121212", waveColor: "#1c1c1c", crestColor: "#3a3a3a" }
+      : { horizonColor: "#edede9", waveColor: "#d6ccc2", crestColor: "#e3d5ca" };
 
   return (
     <div
@@ -35,11 +35,11 @@ export function WaveBackground({ dark, boss }: WaveBackgroundProps) {
         fogDepth={15}
         detail="medium"
         brightness={boss ? 1.1 : 1.0}
-        opacity={1.0}
+        opacity={dark || boss ? 0.85 : 0.9}
         mouseInteraction
         parallaxStrength={0.5}
         grain
-        grainIntensity={0.04}
+        grainIntensity={0.03}
       />
     </div>
   );
