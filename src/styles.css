@@ -354,6 +354,22 @@
   overflow: hidden;
 }
 
+/* TextType — typing effect */
+.text-type {
+  display: inline-block;
+  white-space: pre-wrap;
+}
+
+.text-type__cursor {
+  margin-left: 0.25rem;
+  display: inline-block;
+  opacity: 1;
+}
+
+.text-type__cursor--hidden {
+  display: none;
+}
+
 /* Consistent keyboard focus states across interactive controls. */
 button:focus-visible,
 a:focus-visible,

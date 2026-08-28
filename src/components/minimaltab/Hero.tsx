@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocalStorage } from "@/lib/minimaltab/storage";
 import { quoteOfDay } from "@/lib/minimaltab/quotes";
+import { TextType } from "@/components/minimaltab/TextType";
 
 function greeting(h: number) {
   if (h < 5) return "Still up";
@@ -33,7 +34,23 @@ export function Hero() {
       <p suppressHydrationWarning className="text-xs uppercase tracking-[0.22em] text-muted-foreground sm:text-sm">{mounted ? date : "\u00a0"}</p>
 
       <p suppressHydrationWarning className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-        {mounted ? `${g}${name ? `, ${name}` : ""}` : "\u00a0"}
+        {mounted ? (
+          <TextType
+            key={`${g}-${name}`}
+            text={`${g}${name ? `, ${name}` : ""}`}
+            as="span"
+            typingSpeed={55}
+            deletingSpeed={35}
+            pauseDuration={2400}
+            loop={false}
+            showCursor
+            cursorCharacter="|"
+            cursorBlinkDuration={0.6}
+            className="text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl"
+          />
+        ) : (
+          "\u00a0"
+        )}
       </p>
       <p suppressHydrationWarning className="mt-1 font-mono text-4xl font-light tracking-tight text-foreground/90 tabular-nums sm:text-5xl lg:text-6xl">
         {mounted ? time : "\u00a0"}
