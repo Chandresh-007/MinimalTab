@@ -9,11 +9,13 @@ interface WaveBackgroundProps {
  * Full-viewport GradientWaves background, themed per active palette.
  */
 export function WaveBackground({ dark, boss }: WaveBackgroundProps) {
+  // Vivid React Bits signature palette — clearly visible in both light and
+  // dark mode. Boss theme keeps its black/blue/gold identity.
   const palette = boss
     ? { horizonColor: "#000000", waveColor: "#14213d", crestColor: "#fca311" }
     : dark
-      ? { horizonColor: "#121212", waveColor: "#242424", crestColor: "#4a4a4a" }
-      : { horizonColor: "#f5f1ea", waveColor: "#d8c9b8", crestColor: "#b39c82" };
+      ? { horizonColor: "#1a0b3d", waveColor: "#b445c9", crestColor: "#f5f3ff" }
+      : { horizonColor: "#5227FF", waveColor: "#FF9FFC", crestColor: "#FFFFFF" };
 
   return (
     <div
