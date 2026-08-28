@@ -7,7 +7,6 @@ interface WaveBackgroundProps {
 
 /**
  * Full-viewport GradientWaves background, themed per active palette.
- * PixelSnow remains as the ambient motion layer above this.
  */
 export function WaveBackground({ dark, boss }: WaveBackgroundProps) {
   const palette = boss
