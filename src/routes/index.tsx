@@ -142,7 +142,7 @@ function MinimalTab() {
   return (
     <div className="relative min-h-dvh bg-background text-foreground">
       <Intro />
-      <WaveBackground />
+      <WaveBackground dark={!!dark} boss={!!boss} />
       {hydrated && (
         <div
           aria-hidden="true"
