@@ -346,6 +346,14 @@
   }
 }
 
+/* GradientWaves — WebGL wave field background */
+.gradient-waves-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 /* PixelSnow — retro pixel snow overlay */
 .pixel-snow-container {
   width: 100%;
