@@ -258,8 +258,8 @@ const GradientWaves = ({
       targetMouse[0] = 0.5;
       targetMouse[1] = 0.5;
     };
-    canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerleave", onPointerLeave);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerleave", onPointerLeave);
 
     let raf = 0;
     let isVisible = true;
@@ -308,8 +308,8 @@ const GradientWaves = ({
       ro.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerleave", onPointerLeave);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", onPointerLeave);
       ctxMap.delete(container);
       try {
         container.removeChild(canvas);
