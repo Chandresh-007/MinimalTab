@@ -12,7 +12,6 @@ import { Todos } from "@/components/minimaltab/Todos";
 import { CommandPalette } from "@/components/minimaltab/CommandPalette";
 import { Settings } from "@/components/minimaltab/Settings";
 import { WaveBackground } from "@/components/minimaltab/WaveBackground";
-import PixelSnow from "@/components/minimaltab/PixelSnow";
 import { ThemeToggle } from "@/components/minimaltab/ThemeToggle";
 import { WeatherWidget } from "@/components/minimaltab/WeatherWidget";
 import { BuyMeCoffee } from "@/components/minimaltab/BuyMeCoffee";
@@ -143,24 +142,6 @@ function MinimalTab() {
     <div className="relative min-h-dvh bg-background text-foreground">
       <Intro />
       <WaveBackground dark={!!dark} boss={!!boss} />
-      {hydrated && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-[1] overflow-hidden opacity-50 dark:opacity-80 dark:mix-blend-screen"
-        >
-          <PixelSnow
-            color={dark || boss ? "#ffffff" : "#6c5f55"}
-            flakeSize={0.01}
-            minFlakeSize={1.25}
-            pixelResolution={200}
-            speed={0.8}
-            density={0.12}
-            direction={125}
-            brightness={1}
-            variant="round"
-          />
-        </div>
-      )}
       <ClickSpark
         sparkColor={dark || boss ? "#ffffff" : "#212529"}
         sparkSize={10}
