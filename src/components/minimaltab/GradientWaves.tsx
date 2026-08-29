@@ -179,15 +179,24 @@ const GradientWaves = ({
   grain = true,
   grainIntensity = 0.05,
   className = "",
+  onStatus,
 }: GradientWavesProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const enableMouseRef = useRef(mouseInteraction);
+  const statusRef = useRef(onStatus);
+  statusRef.current = onStatus;
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const renderer = new Renderer({
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let renderer: Renderer;
+    try {
+      renderer = new Renderer({
       webgl: 2,
       alpha: true,
       premultipliedAlpha: true,
