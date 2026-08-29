@@ -9,8 +9,6 @@ export default defineConfig(async ({ command }) => {
   const plugins = [
     tailwindcss(),
     tanstackStart({
-      // Plain-JavaScript project: generate src/routeTree.gen.js without types.
-      router: { disableTypes: true },
       // Redirect the bundled server entry to src/server.js (our SSR error wrapper).
       server: { entry: "server" },
     }),
