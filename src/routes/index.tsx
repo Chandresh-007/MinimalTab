@@ -308,6 +308,7 @@ function MinimalTab() {
         />
       )}
       </ClickSpark>
+      </div>
     </div>
   );
 }
