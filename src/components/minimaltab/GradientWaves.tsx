@@ -153,6 +153,8 @@ export interface GradientWavesProps {
   grain?: boolean;
   grainIntensity?: number;
   className?: string;
+  /** Reports liveness / init errors of the WebGL loop. */
+  onStatus?: (status: { running: boolean; fps: number; error?: string }) => void;
 }
 
 const GradientWaves = ({
@@ -177,147 +179,179 @@ const GradientWaves = ({
   grain = true,
   grainIntensity = 0.05,
   className = "",
+  onStatus,
 }: GradientWavesProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const enableMouseRef = useRef(mouseInteraction);
+  const statusRef = useRef(onStatus);
+  statusRef.current = onStatus;
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const renderer = new Renderer({
-      webgl: 2,
-      alpha: true,
-      premultipliedAlpha: true,
-      antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2),
-    });
-    const gl = renderer.gl;
-    gl.clearColor(0, 0, 0, 0);
-    const canvas = gl.canvas;
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.style.display = "block";
-    container.appendChild(canvas);
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const geometry = new Triangle(gl);
-    const program = new Program(gl, {
-      vertex,
-      fragment,
-      uniforms: {
-        iTime: { value: 0 },
-        iResolution: { value: new Float32Array([1, 1]) },
-        uSpeed: { value: 0.4 },
-        uAmplitude: { value: 2.5 },
-        uWaveScale: { value: 0.6 },
-        uWaveRatio: { value: 0.9 },
-        uSwell: { value: 35 },
-        uTurbulence: { value: 20 },
-        uTilt: { value: 1.11 },
-        uZoom: { value: 1.0 },
-        uHeight: { value: 5.5 },
-        uFogDepth: { value: 15 },
-        uSteps: { value: 70.0 },
-        uBrightness: { value: 1.0 },
-        uOpacity: { value: 1.0 },
-        uGrain: { value: 1.0 },
-        uGrainIntensity: { value: 0.05 },
-        uMouse: { value: new Float32Array([0.5, 0.5]) },
-        uParallax: { value: 0.5 },
-        uEnableMouse: { value: true },
-        uHorizonColor: { value: new Float32Array([1, 1, 1]) },
-        uWaveColor: { value: new Float32Array([1, 1, 1]) },
-        uCrestColor: { value: new Float32Array([1, 1, 1]) },
-      },
-    });
-    const mesh = new Mesh(gl, { geometry, program });
-    ctxMap.set(container, { renderer, program, mesh });
+    try {
+      const renderer = new Renderer({
+        webgl: 2,
+        alpha: true,
+        premultipliedAlpha: true,
+        antialias: false,
+        dpr: Math.min(window.devicePixelRatio || 1, 2),
+      });
+      const gl = renderer.gl;
+      gl.clearColor(0, 0, 0, 0);
+      const canvas = gl.canvas;
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.display = "block";
+      container.appendChild(canvas);
 
-    const setSize = () => {
-      const rect = container.getBoundingClientRect();
-      const w = Math.max(1, Math.floor(rect.width));
-      const h = Math.max(1, Math.floor(rect.height));
-      renderer.setSize(w, h);
-      const res = program.uniforms.iResolution.value as Float32Array;
-      res[0] = gl.drawingBufferWidth;
-      res[1] = gl.drawingBufferHeight;
-      renderer.render({ scene: mesh });
-    };
-    const ro = new ResizeObserver(setSize);
-    ro.observe(container);
-    setSize();
+      const geometry = new Triangle(gl);
+      const program = new Program(gl, {
+        vertex,
+        fragment,
+        uniforms: {
+          iTime: { value: 0 },
+          iResolution: { value: new Float32Array([1, 1]) },
+          uSpeed: { value: 0.4 },
+          uAmplitude: { value: 2.5 },
+          uWaveScale: { value: 0.6 },
+          uWaveRatio: { value: 0.9 },
+          uSwell: { value: 35 },
+          uTurbulence: { value: 20 },
+          uTilt: { value: 1.11 },
+          uZoom: { value: 1.0 },
+          uHeight: { value: 5.5 },
+          uFogDepth: { value: 15 },
+          uSteps: { value: 70.0 },
+          uBrightness: { value: 1.0 },
+          uOpacity: { value: 1.0 },
+          uGrain: { value: 1.0 },
+          uGrainIntensity: { value: 0.05 },
+          uMouse: { value: new Float32Array([0.5, 0.5]) },
+          uParallax: { value: 0.5 },
+          uEnableMouse: { value: true },
+          uHorizonColor: { value: new Float32Array([1, 1, 1]) },
+          uWaveColor: { value: new Float32Array([1, 1, 1]) },
+          uCrestColor: { value: new Float32Array([1, 1, 1]) },
+        },
+      });
+      const mesh = new Mesh(gl, { geometry, program });
+      ctxMap.set(container, { renderer, program, mesh });
 
-    const currentMouse = [0.5, 0.5];
-    const targetMouse = [0.5, 0.5];
-    const onPointerMove = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      targetMouse[0] = (e.clientX - rect.left) / rect.width;
-      targetMouse[1] = 1.0 - (e.clientY - rect.top) / rect.height;
-    };
-    const onPointerLeave = () => {
-      targetMouse[0] = 0.5;
-      targetMouse[1] = 0.5;
-    };
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerleave", onPointerLeave);
+      const setSize = () => {
+        const rect = container.getBoundingClientRect();
+        const w = Math.max(1, Math.floor(rect.width));
+        const h = Math.max(1, Math.floor(rect.height));
+        renderer.setSize(w, h);
+        const res = program.uniforms.iResolution.value as Float32Array;
+        res[0] = gl.drawingBufferWidth;
+        res[1] = gl.drawingBufferHeight;
+        renderer.render({ scene: mesh });
+      };
+      const ro = new ResizeObserver(setSize);
+      ro.observe(container);
+      setSize();
 
-    let raf = 0;
-    let isVisible = true;
-    let isPageVisible = !document.hidden;
-    const t0 = performance.now();
+      const currentMouse = [0.5, 0.5];
+      const targetMouse = [0.5, 0.5];
+      const onPointerMove = (e: PointerEvent) => {
+        if (reduced) return;
+        const rect = canvas.getBoundingClientRect();
+        targetMouse[0] = (e.clientX - rect.left) / rect.width;
+        targetMouse[1] = 1.0 - (e.clientY - rect.top) / rect.height;
+      };
+      const onPointerLeave = () => {
+        targetMouse[0] = 0.5;
+        targetMouse[1] = 0.5;
+      };
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerleave", onPointerLeave);
 
-    const loop = (t: number) => {
-      program.uniforms.iTime.value = (t - t0) * 0.001;
-      const tx = enableMouseRef.current ? targetMouse[0] : 0.5;
-      const ty = enableMouseRef.current ? targetMouse[1] : 0.5;
-      currentMouse[0] += 0.05 * (tx - currentMouse[0]);
-      currentMouse[1] += 0.05 * (ty - currentMouse[1]);
-      (program.uniforms.uMouse.value as Float32Array)[0] = currentMouse[0];
-      (program.uniforms.uMouse.value as Float32Array)[1] = currentMouse[1];
-      renderer.render({ scene: mesh });
-      raf = requestAnimationFrame(loop);
-    };
-    const tryStart = () => {
-      if (isVisible && isPageVisible && raf === 0) raf = requestAnimationFrame(loop);
-    };
-    const tryStop = () => {
-      if (raf !== 0) {
-        cancelAnimationFrame(raf);
-        raf = 0;
-      }
-    };
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        isVisible = entry.isIntersecting;
-        if (isVisible) tryStart();
+      let raf = 0;
+      let isVisible = true;
+      let isPageVisible = !document.hidden;
+      const t0 = performance.now();
+      // Reduced motion: throttle to a slow update rate instead of 60fps.
+      const minFrameMs = reduced ? 1000 : 0;
+      let lastFrame = 0;
+      let frames = 0;
+      let statusAt = performance.now();
+
+      const loop = (t: number) => {
+        raf = requestAnimationFrame(loop);
+        if (t - lastFrame < minFrameMs) return;
+        lastFrame = t;
+        program.uniforms.iTime.value = (t - t0) * 0.001 * (reduced ? 0.15 : 1);
+        const tx = enableMouseRef.current && !reduced ? targetMouse[0] : 0.5;
+        const ty = enableMouseRef.current && !reduced ? targetMouse[1] : 0.5;
+        currentMouse[0] += 0.05 * (tx - currentMouse[0]);
+        currentMouse[1] += 0.05 * (ty - currentMouse[1]);
+        (program.uniforms.uMouse.value as Float32Array)[0] = currentMouse[0];
+        (program.uniforms.uMouse.value as Float32Array)[1] = currentMouse[1];
+        renderer.render({ scene: mesh });
+        frames++;
+        if (t - statusAt >= 1000) {
+          statusRef.current?.({
+            running: true,
+            fps: Math.round((frames * 1000) / (t - statusAt)),
+          });
+          frames = 0;
+          statusAt = t;
+        }
+      };
+      const tryStart = () => {
+        if (isVisible && isPageVisible && raf === 0) raf = requestAnimationFrame(loop);
+      };
+      const tryStop = () => {
+        if (raf !== 0) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+          statusRef.current?.({ running: false, fps: 0 });
+        }
+      };
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) tryStart();
+          else tryStop();
+        },
+        { threshold: 0 },
+      );
+      io.observe(container);
+      const onVisibility = () => {
+        isPageVisible = !document.hidden;
+        if (isPageVisible) tryStart();
         else tryStop();
-      },
-      { threshold: 0 },
-    );
-    io.observe(container);
-    const onVisibility = () => {
-      isPageVisible = !document.hidden;
-      if (isPageVisible) tryStart();
-      else tryStop();
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    tryStart();
+      };
+      document.addEventListener("visibilitychange", onVisibility);
+      tryStart();
 
-    return () => {
-      tryStop();
-      ro.disconnect();
-      io.disconnect();
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerleave", onPointerLeave);
-      ctxMap.delete(container);
-      try {
-        container.removeChild(canvas);
-      } catch {
-        /* noop */
-      }
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
-    };
+      return () => {
+        tryStop();
+        ro.disconnect();
+        io.disconnect();
+        document.removeEventListener("visibilitychange", onVisibility);
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerleave", onPointerLeave);
+        ctxMap.delete(container);
+        try {
+          container.removeChild(canvas);
+        } catch {
+          /* noop */
+        }
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("[GradientWaves] initialization failed:", message);
+      statusRef.current?.({ running: false, fps: 0, error: message });
+      return;
+    }
   }, []);
 
   useEffect(() => {
