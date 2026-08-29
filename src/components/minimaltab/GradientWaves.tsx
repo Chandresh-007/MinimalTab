@@ -153,6 +153,8 @@ export interface GradientWavesProps {
   grain?: boolean;
   grainIntensity?: number;
   className?: string;
+  /** Reports liveness / init errors of the WebGL loop. */
+  onStatus?: (status: { running: boolean; fps: number; error?: string }) => void;
 }
 
 const GradientWaves = ({
