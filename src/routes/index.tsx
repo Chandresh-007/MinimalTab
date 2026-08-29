@@ -141,7 +141,7 @@ function MinimalTab() {
   return (
     <div className="relative min-h-dvh bg-background text-foreground">
       <Intro />
-      <WaveBackground dark={!!dark} boss={!!boss} />
+      <WaveBackground dark={!!dark} boss={!!boss} debug={!!sparkDebug} />
       <ClickSpark
         sparkColor={dark || boss ? "#ffffff" : "#212529"}
         sparkSize={10}
