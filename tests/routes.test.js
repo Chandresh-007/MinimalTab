@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:8080";
+const BASE = process.env.BASE_URL || "http://localhost:8080";
 const ROUTES_DIR = join(process.cwd(), "src", "routes");
 
 /** Collect the URL path of every declared file route. */
