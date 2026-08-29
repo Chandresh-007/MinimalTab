@@ -54,7 +54,7 @@ export function WaveBackground({ dark, boss, debug }: WaveBackgroundProps) {
         />
       </div>
       {debug ? (
-        <div className="pointer-events-none fixed bottom-3 left-3 z-50 rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[10px] text-muted-foreground backdrop-blur">
+        <div className="pointer-events-none fixed bottom-3 right-3 z-50 rounded-md border border-border bg-background/85 px-2 py-1 font-mono text-[10px] text-muted-foreground backdrop-blur">
           waves:{" "}
           {status.error
             ? `error — ${status.error}`
