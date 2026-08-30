@@ -1,15 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { NotFound } from "@/components/minimaltab/NotFound";
 
 export const Route = createFileRoute("/$")({
+  // Unknown URLs never show a 404 screen — send them straight to the dashboard.
+  beforeLoad: () => {
+    throw redirect({ to: "/", replace: true });
+  },
   head: () => ({
     meta: [
-      { title: "Page not found — MinimalTab" },
-      { name: "description", content: "This MinimalTab page doesn't exist. Head back to your dashboard." },
+      { title: "Redirecting — MinimalTab" },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Page not found — MinimalTab" },
-      { property: "og:description", content: "This MinimalTab page doesn't exist. Head back to your dashboard." },
     ],
   }),
-  component: () => <NotFound />,
+  component: () => <NotFound autoRedirect />,
 });

@@ -35,10 +35,11 @@ describe("declared TanStack routes", () => {
 describe("unknown routes", () => {
   const unknown = ["/definitely-not-a-page", "/nested/missing/path"];
 
-  it.each(unknown)("%s renders the custom not-found screen", async (path) => {
-    const res = await fetch(`${BASE}${path}`);
+  it.each(unknown)("%s redirects to the dashboard", async (path) => {
+    const res = await fetch(`${BASE}${path}`, { redirect: "follow" });
     const body = await res.text();
-    expect(body).toMatch(/Page not found/i);
-    expect(body).toMatch(/Back to dashboard/i);
+    expect(body).not.toMatch(/Page not found/i);
+    expect(body).toMatch(/Quick access/i);
   });
 });
+
