@@ -13,6 +13,11 @@ export function NotFound({ autoRedirect = true, reason = "root-not-found" }) {
   const [cancelled, setCancelled] = useState(!autoRedirect);
 
   useEffect(() => {
+    logRouteFallback({ reason, from: location.href, to: "/" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     if (cancelled) return;
     if (seconds <= 0) {
       router.navigate({ to: "/", replace: true });
