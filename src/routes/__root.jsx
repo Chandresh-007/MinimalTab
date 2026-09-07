@@ -9,11 +9,19 @@ import {
 } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
 import { NotFound } from "@/components/minimaltab/NotFound";
+import { RouteDiagnostics } from "@/components/minimaltab/RouteDiagnostics";
+import { logRouteFallback } from "@/lib/route-fallback";
 function NotFoundComponent() {
-  return <NotFound />;
+  return <NotFound reason="root-not-found" />;
 }
 function ErrorComponent({ error, reset }) {
   console.error(error);
+  logRouteFallback({
+    reason: "init-error",
+    from: typeof window !== "undefined" ? window.location.href : "unknown",
+    to: "/",
+    detail: error?.message ?? error
+  });
   const router = useRouter();
   return <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -92,6 +100,7 @@ function RootComponent() {
     /* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */
   }
       <Outlet />
+      <RouteDiagnostics />
     </QueryClientProvider>;
 }
 export {

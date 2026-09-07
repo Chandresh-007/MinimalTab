@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
+import { FALLBACK_REASON_LABELS, logRouteFallback } from "@/lib/route-fallback";
 
 const REDIRECT_SECONDS = 5;
 
-export function NotFound({ autoRedirect = true }) {
+export function NotFound({ autoRedirect = true, reason = "root-not-found" }) {
   const router = useRouter();
   const location = useRouterState({ select: (s) => s.location });
   const matches = useRouterState({ select: (s) => s.matches });
   const matchedRouteId = matches.length ? matches[matches.length - 1].routeId : "none";
   const [seconds, setSeconds] = useState(REDIRECT_SECONDS);
   const [cancelled, setCancelled] = useState(!autoRedirect);
+
+  useEffect(() => {
+    logRouteFallback({ reason, from: location.href, to: "/" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (cancelled) return;
@@ -54,6 +60,10 @@ export function NotFound({ autoRedirect = true }) {
           <div className="truncate">url: {location.href}</div>
           <div className="truncate">pathname: {location.pathname}</div>
           <div className="truncate">matched: {matchedRouteId}</div>
+          <div className="truncate">
+            reason: {FALLBACK_REASON_LABELS[reason] ?? reason}
+          </div>
+          <div className="truncate">redirect target: /</div>
         </div>
       </div>
     </div>
