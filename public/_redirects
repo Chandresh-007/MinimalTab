@@ -1,0 +1,3 @@
+# Cloudflare Pages: always serve the app shell for unknown routes so deep links
+# and refreshes never hit a platform-level "not found" page.
+/*    /index.html    200
