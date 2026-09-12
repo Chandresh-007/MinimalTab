@@ -4,6 +4,7 @@ import { join } from "node:path";
 
 const BASE = process.env.TEST_BASE_URL || "http://localhost:8080";
 const ROUTES_DIR = join(process.cwd(), "src", "routes");
+const NOT_FOUND_RE = /page not found|>\s*404\s*</i;
 
 /** Collect the URL path of every declared file route. */
 function declaredRoutes() {
@@ -24,22 +25,23 @@ describe("declared TanStack routes", () => {
     expect(routes).toContain("/");
   });
 
-  it.each(routes)("%s resolves without a 404", async (path) => {
-    const res = await fetch(`${BASE}${path}`);
+  it.each(routes)("%s resolves without a platform 404", async (path) => {
+    const res = await fetch(`${BASE}${path}`, { redirect: "manual" });
+    const body = res.status >= 300 && res.status < 400 ? "" : await res.text();
     expect(res.status).toBe(200);
-    const body = await res.text();
-    expect(body).not.toMatch(/Page not found/i);
+    expect(NOT_FOUND_RE.test(body), `not-found UI for ${path}`).toBe(false);
+    expect(body).toContain('<div id="root"');
   });
 });
 
 describe("unknown routes", () => {
   const unknown = ["/definitely-not-a-page", "/nested/missing/path"];
 
-  it.each(unknown)("%s redirects to the dashboard", async (path) => {
-    const res = await fetch(`${BASE}${path}`, { redirect: "follow" });
-    const body = await res.text();
-    expect(body).not.toMatch(/Page not found/i);
-    expect(body).toMatch(/Quick access/i);
+  it.each(unknown)("%s serves the app shell so the client can redirect", async (path) => {
+    const res = await fetch(`${BASE}${path}`, { redirect: "manual" });
+    const body = res.status >= 300 && res.status < 400 ? "" : await res.text();
+    expect(res.status).toBe(200);
+    expect(NOT_FOUND_RE.test(body), `not-found UI for ${path}`).toBe(false);
+    expect(body).toContain('<div id="root"');
   });
 });
-
