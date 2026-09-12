@@ -16,7 +16,14 @@ export default defineConfig(async ({ command }) => {
 
   if (command === "build") {
     const { nitro } = await import("nitro/vite");
-    plugins.push(nitro({ preset: "cloudflare-pages" }));
+    plugins.push(
+      nitro({
+        preset: "static",
+        prerender: {
+          routes: ["/"],
+        },
+      })
+    );
   }
 
   plugins.push(viteReact());
