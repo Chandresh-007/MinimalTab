@@ -1,45 +1,19 @@
-import { fileURLToPath, URL } from "node:url";
-
 import { defineConfig } from "vite";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import viteReact from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
-export default defineConfig(async ({ command }) => {
-  const plugins = [
-    tailwindcss(),
-    tanstackStart({
-      // Redirect the bundled server entry to src/server.js (our SSR error wrapper).
-      server: { entry: "server" },
-    }),
-  ];
-
-  if (command === "build") {
-    const { nitro } = await import("nitro/vite");
-    plugins.push(nitro({ preset: "cloudflare-pages" }));
-  }
-
-  plugins.push(viteReact());
-
-  return {
-    plugins,
-    resolve: {
-      alias: {
-        "@": fileURLToPath(new URL("./src", import.meta.url)),
-      },
-      dedupe: [
-        "react",
-        "react-dom",
-        "@tanstack/react-router",
-        "@tanstack/react-query",
-        "@tanstack/react-start",
-      ],
+export default defineConfig({
+  plugins: [tailwindcss(), TanStackRouterVite(), react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
-    server: {
-      host: "::",
-      port: 8080,
-      strictPort: true,
-      allowedHosts: true,
-    },
-  };
+  },
+  build: {
+    outDir: "dist",
+    assetsDir: "assets",
+    sourcemap: true,
+  },
 });
