@@ -79,26 +79,18 @@ const Route = createRootRouteWithContext()({
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent
 });
-function RootShell({ children }) {
-  return <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>;
-}
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  return <QueryClientProvider client={queryClient}>
-      {
-    /* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */
-  }
-      <Outlet />
-      <RouteDiagnostics />
-    </QueryClientProvider>;
+  return <>
+      <HeadContent />
+      <QueryClientProvider client={queryClient}>
+        {
+      /* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */
+    }
+        <Outlet />
+        <RouteDiagnostics />
+      </QueryClientProvider>
+    </>;
 }
 export {
   Route
