@@ -1,11 +1,9 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
-
   createRootRouteWithContext,
   useRouter,
   HeadContent,
-  Scripts
 } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
 import { NotFound } from "@/components/minimaltab/NotFound";
@@ -57,14 +55,14 @@ const Route = createRootRouteWithContext()({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "MinimalTab — Your Browser's Productivity OS" },
-      { name: "description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." },
+      { name: "description", content: "Universal search, quick links, notes, and todos — beautifully minimal." },
       { name: "author", content: "MinimalTab" },
       { property: "og:title", content: "MinimalTab — Your Browser's Productivity OS" },
-      { property: "og:description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." },
+      { property: "og:description", content: "Universal search, quick links, notes, and todos — beautifully minimal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "MinimalTab — Your Browser's Productivity OS" },
-      { name: "twitter:description", content: "Universal search, command palette, notes, and quick links — beautifully minimal." }
+      { name: "twitter:description", content: "Universal search, quick links, notes, and todos — beautifully minimal." }
     ],
     links: [
       {
@@ -77,7 +75,6 @@ const Route = createRootRouteWithContext()({
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" }
     ]
   }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent
